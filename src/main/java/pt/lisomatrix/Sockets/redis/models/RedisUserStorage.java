@@ -10,7 +10,7 @@ import java.util.List;
 public class RedisUserStorage {
 
     @Id
-    private String sessionId;
+    private String token;
 
     private Long userId;
 
@@ -26,12 +26,12 @@ public class RedisUserStorage {
 
     private List<Nota> notas;
 
-    public String getSessionId() {
-        return sessionId;
+    public String getToken() {
+        return token;
     }
 
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public Long getUserId() {

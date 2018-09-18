@@ -12,7 +12,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import pt.lisomatrix.Sockets.redis.models.RedisToken;
+import pt.lisomatrix.Sockets.redis.models.RedisUserStorage;
 import pt.lisomatrix.Sockets.redis.repositories.RedisTokenRepository;
+import pt.lisomatrix.Sockets.redis.repositories.RedisUsersStorageRepository;
 import pt.lisomatrix.Sockets.repositories.TokensRepository;
 import pt.lisomatrix.Sockets.repositories.UsersRepository;
 import pt.lisomatrix.Sockets.storage.FileStorageProperties;
@@ -40,9 +42,12 @@ public class SocketsApplication {
     @Autowired
     private UsersRepository usersRepository;
 
+    @Autowired
+    private RedisUsersStorageRepository redisUsersStorageRepository;
+
 	@Bean
 	public SocketIOServer socketIOServer() {
-        getPath();
+
 		// Set configuration
 		Configuration config = new Configuration();
 
@@ -69,7 +74,7 @@ public class SocketsApplication {
         }
 
         // Set allowed origins
-	    config.setOrigin("http://192.168.1.3:3000");
+	    config.setOrigin("http://192.168.1.4:3000");
 
 
 		config.setAuthorizationListener(new AuthorizationListener() {
@@ -90,12 +95,25 @@ public class SocketsApplication {
                         RedisToken redisToken = foundToken.get();
                         // If it is not used
                         if(!redisToken.isUsed()) {
+                            // Check if the authentication IP is the same as used in http auth
                             if(redisToken.getIpAddress().equals(handshakeData.getLocal().getHostString())) {
 
                                 // Set to used
                                 redisToken.setUsed(true);
+
+                                // Create user storage
+                                RedisUserStorage redisUserStorage = new RedisUserStorage();
+
+                                // Populate user storage
+                                redisUserStorage.setToken(redisToken.getToken());
+                                redisUserStorage.setRole(redisToken.getRole());
+
+                                // Save user storage to redis
+                                redisUsersStorageRepository.save(redisUserStorage);
+
                                 // Update token
                                 redisTokenRepository.save(redisToken);
+
 
                                 return true;
 
@@ -119,13 +137,6 @@ public class SocketsApplication {
 		return new SocketIOServer(config);
 	}
 
-	private String getPath() {
-	    String path = this.getClass().getClassLoader().getResource("keystore.jks").getPath();
-
-	    System.out.println(path);
-
-	    return path;
-    }
 
 	public static void main(String[] args) {
 		SpringApplication.run(SocketsApplication.class, args);

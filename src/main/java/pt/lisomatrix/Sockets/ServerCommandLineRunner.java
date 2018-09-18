@@ -37,47 +37,47 @@ public class ServerCommandLineRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        /*server.addConnectListener(new ConnectListener() {
-            @Override
-            public void onConnect(SocketIOClient socketIOClient) {
-
-                // Send session id to user
-                socketIOClient.sendEvent("session", socketIOClient.getSessionId().toString().replace("-", ""));
-
-                // Get token from the handshake data
-                String usedToken = socketIOClient.getHandshakeData().getSingleUrlParam("token");
-
-                // Get token from redis
-                Optional<RedisToken> foundRedisToken = redisTokenRepository.findById(usedToken);
-
-                // If found
-                if(foundRedisToken.isPresent()) {
-                    // Get token object
-                    RedisToken redisToken = foundRedisToken.get();
-
-                    // Create RedisUserStorage instance and populate it
-                    RedisUserStorage redisUserStorage = new RedisUserStorage();
-
-                    redisUserStorage.setRole(redisToken.getRole());
-
-                    // Save to redis
-                    redisUsersStorageRepository.save(redisUserStorage);
-
-                    // Delete token
-                    redisTokenRepository.deleteById(redisToken.getToken());
-
-                } else {
-                    // If token found disconnect the user
-                    socketIOClient.disconnect();
-                }
-            }
-        });*/
-
-
         server.addDisconnectListener(new DisconnectListener() {
             @Override
             public void onDisconnect(SocketIOClient socketIOClient) {
-                // TODO REMOVE REDIS MEMORY STORAGE
+
+                // Get connection token
+                String usedToken = socketIOClient.getHandshakeData().getSingleUrlParam("token");
+
+                // If token string was found
+                if(!usedToken.equals("")) {
+
+                    // Get redis token
+                    Optional<RedisToken> foundRedisToken = redisTokenRepository.findById(usedToken);
+
+                    // If redis token found
+                    if(foundRedisToken.isPresent()) {
+
+                        // Get redis token found
+                        RedisToken redisToken = foundRedisToken.get();
+
+                        // Get Redis User Storage
+                        Optional<RedisUserStorage> foundRedisUserStorage = redisUsersStorageRepository.findById(redisToken.getToken());
+
+                        // If redis user storage was found
+                        if(foundRedisUserStorage.isPresent()) {
+                            // Get redis user storage
+                            RedisUserStorage redisUserStorage = foundRedisUserStorage.get();
+
+                            // delete redis user storage and redis token
+                            redisUsersStorageRepository.delete(redisUserStorage);
+                            redisTokenRepository.delete(redisToken);
+
+                        } else {
+                            // delete redis token
+                            redisTokenRepository.delete(redisToken);
+                        }
+
+                    }
+
+                }
+
+
             }
         });
 

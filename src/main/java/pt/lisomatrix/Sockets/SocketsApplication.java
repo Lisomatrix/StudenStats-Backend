@@ -74,7 +74,7 @@ public class SocketsApplication {
         }
 
         // Set allowed origins
-	    config.setOrigin("http://192.168.1.4:3000");
+	    config.setOrigin("http://192.168.1.3:3000");
 
 
 		config.setAuthorizationListener(new AuthorizationListener() {

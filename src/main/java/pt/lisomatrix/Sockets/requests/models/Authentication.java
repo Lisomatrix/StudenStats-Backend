@@ -6,8 +6,18 @@ public class Authentication {
 
     private String password;
 
+    private Boolean remember;
+
     public Authentication() {
 
+    }
+
+    public Boolean getRemember() {
+        return remember;
+    }
+
+    public void setRemember(Boolean remember) {
+        this.remember = remember;
     }
 
     public String getEmail() {

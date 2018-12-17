@@ -11,6 +11,11 @@ import pt.lisomatrix.Sockets.redis.repositories.RedisStorageTokenRepository;
 
 import java.util.UUID;
 
+/***
+ * TODO CHECK IF NEEDED
+ *
+ * This module might no be required still for decision
+ */
 @Component
 public class StorageAuthorizationModule {
 

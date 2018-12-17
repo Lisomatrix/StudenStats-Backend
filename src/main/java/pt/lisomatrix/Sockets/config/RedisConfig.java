@@ -11,8 +11,6 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import pt.lisomatrix.Sockets.redis.MessagePublisher;
-import pt.lisomatrix.Sockets.redis.RedisMessagePublisher;
-import pt.lisomatrix.Sockets.redis.RedisMessageSubscriber;
 
 /***
  * Configures Redis Connection
@@ -26,7 +24,7 @@ public class RedisConfig {
      *
      * @return JedisConnectionFactory
      */
-    @Bean
+    /*@Bean
     JedisConnectionFactory jedisConnectionFactory() {
 
         // Establish connection with redis
@@ -34,14 +32,14 @@ public class RedisConfig {
 
         // Returns redis connection
         return new JedisConnectionFactory(redisStandaloneConfiguration);
-    }
+    }*/
 
     /***
      * returns an instance of RedisTemplate
      *
      * @return RedisTemplate<String, Object>
      */
-    @Bean
+    /*@Bean
     public RedisTemplate<String, Object> redisTemplate() {
         // Create template
         final RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
@@ -51,7 +49,7 @@ public class RedisConfig {
 
         // returns template
         return template;
-    }
+    }*/
 
 
     /***
@@ -59,40 +57,40 @@ public class RedisConfig {
      *
      * @return MessageListenerAdapter
      */
-    @Bean
+    /*@Bean
     MessageListenerAdapter messageListener() {
         return new MessageListenerAdapter(new RedisMessageSubscriber());
-    }
+    }*/
 
     /***
      * Returns RedisMessageListenerContainer instance
      *
      * @return RedisMessageListenerContainer
      */
-    @Bean
+    /*@Bean
     RedisMessageListenerContainer redisContainer() {
         final RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(jedisConnectionFactory());
         container.addMessageListener(messageListener(), topic());
         return container;
-    }
+    }*/
 
     /***
      * Returns MessagePublisher instance
      *
      * @return MessagePublisher
      */
-    @Bean
+    /*@Bean
     MessagePublisher redisPublisher() {
         return new RedisMessagePublisher(redisTemplate(), topic());
-    }
+    }*/
 
     /***
      * Returns ChannelTopic instance
      * @return ChannelTopic
      */
-    @Bean
+    /*@Bean
     ChannelTopic topic() {
         return new ChannelTopic("pubsub:queue");
-    }
+    }*/
 }

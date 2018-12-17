@@ -8,17 +8,14 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.view.RedirectView;
+import pt.lisomatrix.Sockets.constants.Roles;
 import pt.lisomatrix.Sockets.models.*;
 import pt.lisomatrix.Sockets.redis.models.RedisToken;
-import pt.lisomatrix.Sockets.repositories.PasswordResetsRepository;
+import pt.lisomatrix.Sockets.repositories.*;
 import pt.lisomatrix.Sockets.redis.repositories.RedisTokenRepository;
-import pt.lisomatrix.Sockets.repositories.PersonsRepository;
-import pt.lisomatrix.Sockets.repositories.TokensRepository;
-import pt.lisomatrix.Sockets.repositories.UsersRepository;
-import pt.lisomatrix.Sockets.requests.models.Authentication;
-import pt.lisomatrix.Sockets.requests.models.PasswordRecovery;
-import pt.lisomatrix.Sockets.requests.models.Registration;
-import pt.lisomatrix.Sockets.requests.models.Response;
+import pt.lisomatrix.Sockets.requests.models.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
@@ -46,12 +43,6 @@ public class AuthenticationController {
     private UsersRepository usersRepository;
 
     /***
-     * Database Repository to get and update persons
-     */
-    @Autowired
-    private PersonsRepository personsRepository;
-
-    /***
      * Password Encoder helper
      */
     @Autowired
@@ -75,6 +66,30 @@ public class AuthenticationController {
      */
     @Autowired
     private JavaMailSender javaMailSender;
+
+    /***
+     * Database Repository to get and create students
+     */
+    @Autowired
+    private StudentsRepository studentsRepository;
+
+    /***
+     * Database Repository to get and create teachers
+     */
+    @Autowired
+    private TeachersRepository teachersRepository;
+
+    /***
+     * Database Repository to get and create parents
+     */
+    @Autowired
+    private ParentsRepository parentsRepository;
+
+    /***
+     * Database Repository to get and create permanent Tokens
+     */
+    @Autowired
+    private PermanentTokensRepository permanentTokensRepository;
 
     /***
      * Takes care of the reset validation and password renovation
@@ -190,10 +205,10 @@ public class AuthenticationController {
             javaMailSender.send(mailMessage);
 
             // Generate response
-            Response successReponse = generateResponse(uniqueId.replace("-", ""), true);
+            Response successResponse = generateResponse(uniqueId.replace("-", ""), true);
 
             // Send response
-            return new ResponseEntity<>(successReponse, HttpStatus.OK);
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
 
         } else {
             // Generate response
@@ -217,7 +232,6 @@ public class AuthenticationController {
         // Get request ip address
         String ipAddress = request.getRemoteAddr();
 
-
         // Get the user with the email
         Optional<User> foundUser = this.usersRepository.findByEmail(authentication.getEmail().toLowerCase());
 
@@ -230,35 +244,30 @@ public class AuthenticationController {
             // Check if password matches
             if(this.passwordEncoder.matches(authentication.getPassword(), user.getPassword())) {
 
-                // Get current date
-                Date currentDate = new Date();
-                // Generate unique id
-                UUID uniqueId = UUID.randomUUID();
+                RedisToken redisToken = generateAccessToken(user, ipAddress);
 
-                // Create token and populate it
-                Token accessToken = new Token();
+                if(authentication.getRemember()) {
+                    UUID token = UUID.randomUUID();
 
-                accessToken.setToken(uniqueId.toString().replace("-", ""));
-                accessToken.setUserId(user.getUserId());
-                accessToken.setDate(currentDate);
+                    PermanentToken permanentToken = new PermanentToken();
 
-                // Save token to redis and database
-                RedisToken redisToken = new RedisToken();
+                    permanentToken.setPermanentToken(token.toString().replace("-", ""));
+                    permanentToken.setUser(user);
 
-                redisToken.setToken(accessToken.getToken());
-                redisToken.setUsed(false);
-                redisToken.setRole(user.getPerson().getRole().getRole());
-                redisToken.setIpAddress(ipAddress);
+                    permanentTokensRepository.save(permanentToken);
 
-                tokensRepository.save(accessToken);
-                redisTokenRepository.save(redisToken);
+                    RememberToken rememberToken = new RememberToken();
 
-                // Remove non necessary info
-                redisToken.setUsed(null);
-                redisToken.setIpAddress(null);
+                    rememberToken.setRedisToken(redisToken);
+                    rememberToken.setPermanentToken(permanentToken.getPermanentToken());
 
-                // Return Token
-                return new ResponseEntity<>(redisToken, HttpStatus.OK);
+                    return new ResponseEntity<>(rememberToken, HttpStatus.OK);
+                } else {
+                    // Return Token
+                    return new ResponseEntity<>(redisToken, HttpStatus.OK);
+                }
+
+
             }  else {
 
                 // Generate error response
@@ -277,6 +286,50 @@ public class AuthenticationController {
     }
 
     /***
+     * Takes care of authenticating the user and save a token on redis and on database
+     *
+     * @param token // The required string with the remember me token
+     * @return ResponseEntity<?>
+     */
+    @CrossOrigin
+    @PostMapping("/auth/token")
+    public ResponseEntity<?> tokenAuthentication(@RequestBody TokenAuthentication token, HttpServletRequest request) {
+
+        Optional<PermanentToken> foundPermanentToken = permanentTokensRepository.findFirstByPermanentToken(token.getToken());
+
+        if(foundPermanentToken.isPresent()) {
+
+            PermanentToken permanentToken = foundPermanentToken.get();
+
+            User user = permanentToken.getUser();
+
+            // Get request ip address
+            String ipAddress = request.getRemoteAddr();
+
+            RedisToken redisToken = generateAccessToken(user, ipAddress);
+
+            permanentToken.setPermanentToken(UUID.randomUUID().toString().replace("-", ""));
+
+            permanentTokensRepository.save(permanentToken);
+
+            RememberToken rememberToken = new RememberToken();
+
+            rememberToken.setPermanentToken(permanentToken.getPermanentToken());
+            rememberToken.setRedisToken(redisToken);
+
+            // Return Token
+            return new ResponseEntity<>(rememberToken, HttpStatus.OK);
+
+        } else {
+            // Generate error response
+            Response errorResponse = generateResponse("Credenciais inválidos", false);
+
+            // Return Response
+            return new ResponseEntity<>(errorResponse ,HttpStatus.FORBIDDEN);
+        }
+    }
+
+    /***
      * Takes care of registering a user with the given registration code
      *
      * @param registration // Required credentials to register
@@ -284,7 +337,7 @@ public class AuthenticationController {
      */
     @CrossOrigin
     @PostMapping("/register")
-   public ResponseEntity<?> userRegistration(@RequestBody Registration registration) {
+    public ResponseEntity<?> userRegistration(@RequestBody Registration registration) {
 
        // Get User with the registration code
        Optional<User> foundUser = usersRepository.findByRegistrationCode(registration.getRegistrationCode());
@@ -339,6 +392,11 @@ public class AuthenticationController {
        }
    }
 
+    @RequestMapping("/swagger-ui")
+    public String redirectToUi() {
+        return "redirect:/";
+    }
+
     /***
      * Response Generate helper
      *
@@ -357,6 +415,11 @@ public class AuthenticationController {
         return response;
     }
 
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public RedirectView notFound() {
+        return new RedirectView("/");
+    }
+
     /***
      * Generates a random 5 digit integer
      *
@@ -365,5 +428,64 @@ public class AuthenticationController {
     private int generateRandomCode() {
         Random r = new Random( System.currentTimeMillis() );
         return ((1 + r.nextInt(2)) * 10000 + r.nextInt(10000));
+    }
+
+    private RedisToken generateAccessToken(User user, String ipAddress) {
+
+        // Get current date
+        Date currentDate = new Date();
+        // Generate unique id
+        UUID uniqueId = UUID.randomUUID();
+
+        // Create token and populate it
+        Token accessToken = new Token();
+
+        accessToken.setToken(uniqueId.toString().replace("-", ""));
+        accessToken.setUserId(user.getUserId());
+        accessToken.setDate(currentDate);
+
+        // Save token to redis and database
+        RedisToken redisToken = new RedisToken();
+
+        redisToken.setToken(accessToken.getToken());
+        redisToken.setUsed(false);
+        redisToken.setRole(user.getRole().getRole());
+        redisToken.setUserId(user.getUserId());
+
+        redisToken.setIpAddress(ipAddress);
+
+        if(user.getRole().getRole().equals(Roles.ALUNO.toString())) {
+
+            Optional<Student> foundStudent = studentsRepository.findFirstByUser(user);
+
+            if(foundStudent.isPresent()) {
+                redisToken.setUserRoleId(foundStudent.get().getStudentId());
+            }
+
+        } else if(user.getRole().getRole().equals(Roles.PROFESSOR.toString())) {
+
+            Optional<Teacher> foundTeacher = teachersRepository.findFirstByUser(user);
+
+            if(foundTeacher.isPresent()) {
+                redisToken.setUserRoleId(foundTeacher.get().getTeacherId());
+            }
+
+        } else if (user.getRole().getRole().equals(Roles.PARENTE.toString())) {
+
+            Optional<Parent> foundParent = parentsRepository.findFirstByUser(user);
+
+            if(foundParent.isPresent()) {
+                redisToken.setUserRoleId(foundParent.get().getParentId());
+            }
+        }
+
+        tokensRepository.save(accessToken);
+        redisTokenRepository.save(redisToken);
+
+        // Remove non necessary info
+        redisToken.setUsed(null);
+        redisToken.setIpAddress(null);
+
+        return redisToken;
     }
 }

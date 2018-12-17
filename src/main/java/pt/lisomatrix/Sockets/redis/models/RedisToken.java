@@ -1,10 +1,8 @@
 package pt.lisomatrix.Sockets.redis.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
-import pt.lisomatrix.Sockets.constants.Roles;
 
 @RedisHash("tokens")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,6 +16,26 @@ public class RedisToken {
     private String Role;
 
     private String ipAddress;
+
+    private String userRoleId;
+
+    private Long userId;
+
+    public String getUserRoleId() {
+        return userRoleId;
+    }
+
+    public void setUserRoleId(String userRoleId) {
+        this.userRoleId = userRoleId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
     public Boolean getUsed() {
         return isUsed;

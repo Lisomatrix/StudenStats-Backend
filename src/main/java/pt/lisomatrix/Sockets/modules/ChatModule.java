@@ -6,35 +6,24 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
-import com.corundumstudio.socketio.protocol.Packet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pt.lisomatrix.Sockets.models.ChatDTO;
 import pt.lisomatrix.Sockets.models.Token;
 import pt.lisomatrix.Sockets.repositories.TokensRepository;
 
+/***
+ * This is a sample from the docs of how to set rooms
+ * Might be pretty useful for notification updates
+ */
 @Component
 public class ChatModule {
 
     private final SocketIONamespace namespace;
 
-    @Autowired
-    private TokensRepository tokenRepository;
-
     public ChatModule(SocketIOServer server) {
         this.namespace = server.addNamespace("/chat");
         this.namespace.addConnectListener(onConnected());
         this.namespace.addDisconnectListener(onDisconnected());
-        this.namespace.addEventListener("chat", ChatDTO.class, onChatReceived());
-    }
-
-    private DataListener<ChatDTO> onChatReceived() {
-        return (client, data, ackSender) -> {
-            System.out.println("Message received " + data.getUserName() + " " + data.getMessage());
-            namespace.getBroadcastOperations().sendEvent("chat", data);
-            tokenRepository.save(new Token(data.getMessage()));
-
-        };
     }
 
     private ConnectListener onConnected() {

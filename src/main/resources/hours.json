@@ -1,0 +1,34 @@
+[
+  {
+    "startTime": "08:30",
+    "endTime": "09:30"
+  },
+  {
+    "startTime": "09:45",
+    "endTime": "10:45"
+  },
+  {
+    "startTime": "10:55",
+    "endTime": "11:55"
+  },
+  {
+    "startTime": "12:00",
+    "endTime": "13:00"
+  },
+  {
+    "startTime": "13:25",
+    "endTime": "14:25"
+  },
+  {
+    "startTime": "14:30",
+    "endTime": "15:30"
+  },
+  {
+    "startTime": "15:40",
+    "endTime": "16:40"
+  },
+  {
+    "startTime": "16:45",
+    "endTime": "17:45"
+  }
+]

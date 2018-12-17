@@ -1,11 +1,9 @@
 package pt.lisomatrix.Sockets.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "user_account")
@@ -25,16 +23,17 @@ public class User {
     @Column(nullable = false)
     private Boolean isCreated;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "turma_id", nullable = false)
-    private Turma turma;
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Role role;
 
-    public Turma getTurma() {
-        return turma;
+    public Role getRole() {
+        return role;
     }
 
-    public void setTurma(Turma turma) {
-        this.turma = turma;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public Boolean getCreated() {
@@ -43,20 +42,6 @@ public class User {
 
     public void setCreated(Boolean created) {
         isCreated = created;
-    }
-
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "person_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    private Person person;
-
-    public Person getPerson() {
-        return person;
-    }
-
-    public void setPerson(Person person) {
-        this.person = person;
     }
 
     public String getRegistrationCode() {

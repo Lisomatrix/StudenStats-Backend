@@ -14,9 +14,9 @@ public class File {
     private Long fileId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "person_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Person Owner;
+    private User user;
 
     private String fileName;
 
@@ -30,14 +30,6 @@ public class File {
 
     public void setFileId(Long fileId) {
         this.fileId = fileId;
-    }
-
-    public Person getOwner() {
-        return Owner;
-    }
-
-    public void setOwner(Person owner) {
-        Owner = owner;
     }
 
     public String getFileName() {

@@ -20,11 +20,24 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/***
+ * This class is responsible for storing and loading files
+ *
+ */
 @Service
 public class FileStorageService {
 
+    /***
+     * The path of the files storage folder
+     */
     private Path fileStorageLocation;
 
+    /***
+     * Initialize all class dependencies and
+     * Create files storage folder if it doesn't exist
+     *
+     * @param fileStorageProperties
+     */
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties) {
         this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
@@ -37,6 +50,12 @@ public class FileStorageService {
         }
     }
 
+    /***
+     * TODO OR COMPLETE OR REMOVE
+     *
+     * @param file
+     * @return
+     */
     public String storeFile(MultipartFile file) {
         // Normalize file name
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
@@ -57,6 +76,13 @@ public class FileStorageService {
         }
     }
 
+    /***
+     * Handles saving a file logic
+     *
+     * @param file
+     * @param userId
+     * @return
+     */
     public String saveFile(MultipartFile file, String userId) {
 
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
@@ -77,6 +103,12 @@ public class FileStorageService {
         }
     }
 
+    /***
+     * TODO OR COMPLETE OR REMOVE
+     *
+     * @param path
+     * @return
+     */
     public Resource loadFile(String path) {
 
         try {
@@ -93,6 +125,12 @@ public class FileStorageService {
         }
     }
 
+    /***
+     * Handle getting file location logic
+     *
+     * @param fileName
+     * @return
+     */
     public Resource loadFileAsResource(String fileName) {
         try {
             Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
@@ -107,6 +145,11 @@ public class FileStorageService {
         }
     }
 
+    /***
+     * Sets the file storage Path
+     *
+     * @param path
+     */
     private void setPath(String path) {
         this.fileStorageLocation = Paths.get(path).toAbsolutePath().normalize();
 
@@ -117,6 +160,13 @@ public class FileStorageService {
         }
     }
 
+    /***
+     * Helper to create the User personal folder
+     *
+     * @param userId
+     * @param fileName
+     * @return
+     */
     private String createUserFolder(String userId, String fileName) {
 
         // Create date format and get date

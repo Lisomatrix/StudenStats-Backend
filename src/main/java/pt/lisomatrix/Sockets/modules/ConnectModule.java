@@ -264,12 +264,13 @@ public class ConnectModule {
             userDAO.setRoleEntityId(parent.getParentId());
         }
 
-        // Save the user storage on ram
-        redisUsersStorageRepository.save(redisUserStorage);
         // Warn the client that he can make request at will
         client.sendEvent("READY", userDAO);
 
-    }
+        // Save the user storage on ram
+        redisUsersStorageRepository.save(redisUserStorage);
+
+}
 
     /***
      * Helper to get User Settings

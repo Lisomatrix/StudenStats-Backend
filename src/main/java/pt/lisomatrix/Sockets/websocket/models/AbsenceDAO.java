@@ -24,6 +24,16 @@ public class AbsenceDAO {
 
     private boolean isJustified;
 
+    private boolean isRecuperated;
+
+    public boolean isRecuperated() {
+        return isRecuperated;
+    }
+
+    public void setRecuperated(boolean recuperated) {
+        isRecuperated = recuperated;
+    }
+
     public String getStudentId() {
         return studentId;
     }

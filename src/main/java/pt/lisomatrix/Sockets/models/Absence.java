@@ -36,6 +36,16 @@ public class Absence {
     @Column(nullable = false)
     private boolean isJustified;
 
+    private boolean isRecuperated;
+
+    public boolean isRecuperated() {
+        return isRecuperated;
+    }
+
+    public void setRecuperated(boolean recuperated) {
+        isRecuperated = recuperated;
+    }
+
     public long getAbsenceId() {
         return absenceId;
     }

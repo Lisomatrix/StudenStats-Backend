@@ -169,6 +169,8 @@ public class AbsencesModule {
                 // If correctly converted
                 if(absence != null) {
 
+                    absence.setRecuperated(false);
+
                     // Check the is supposed to delete or create
                     // If its to create absence
                     if(markAbsence.isCreate()) {
@@ -491,6 +493,7 @@ public class AbsencesModule {
             newAbsenceDAO.setLessonId(absence.getLesson().getLessonId());
             newAbsenceDAO.setDiscipline(absence.getDiscipline().getName());
             newAbsenceDAO.setStudentId(absence.getStudent().getStudentId());
+            newAbsenceDAO.setRecuperated(absence.isRecuperated());
 
             absenceDAOList.add(newAbsenceDAO);
         }
@@ -516,7 +519,8 @@ public class AbsencesModule {
         absenceDAO.setDiscipline(absence.getDiscipline().getName());
         absenceDAO.setJustificable(absence.isJustificable());
         absenceDAO.setJustified(absence.isJustified());
-        
+        absenceDAO.setRecuperated(absence.isRecuperated());
+
         return absenceDAO;
     }
 

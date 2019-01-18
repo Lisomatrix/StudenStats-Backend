@@ -1,5 +1,7 @@
 package pt.lisomatrix.Sockets.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -12,6 +14,7 @@ public class ScheduleHour {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "schedule_id")
+    @JsonIgnore
     private Schedule schedule;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -22,14 +25,26 @@ public class ScheduleHour {
     private Discipline discipline;
 
     @OneToOne(fetch = FetchType.EAGER)
-    private Class aClass;
+    @JoinColumn(name = "schedule_day_id")
+    private ScheduleDay scheduleDay;
 
-    public Class getaClass() {
-        return aClass;
+    @OneToOne(fetch = FetchType.EAGER)
+    private ClassRoom classRoom;
+
+    public ClassRoom getClassRoom() {
+        return classRoom;
     }
 
-    public void setaClass(Class aClass) {
-        this.aClass = aClass;
+    public void setClassRoom(ClassRoom classRoom) {
+        this.classRoom = classRoom;
+    }
+
+    public ScheduleDay getScheduleDay() {
+        return scheduleDay;
+    }
+
+    public void setScheduleDay(ScheduleDay scheduleDay) {
+        this.scheduleDay = scheduleDay;
     }
 
     public long getScheduleHourId() {

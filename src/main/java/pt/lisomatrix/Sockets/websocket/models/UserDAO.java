@@ -8,9 +8,9 @@ public class UserDAO {
 
     private long userId;
 
-    private String roleEntityId;
+    private Long roleEntityId;
 
-    private String Id;
+    private Long Id;
 
     private String userThemeSettings;
 
@@ -33,11 +33,11 @@ public class UserDAO {
         isClassDirector = classDirector;
     }
 
-    public String getRoleEntityId() {
+    public Long getRoleEntityId() {
         return roleEntityId;
     }
 
-    public void setRoleEntityId(String roleEntityId) {
+    public void setRoleEntityId(Long roleEntityId) {
         this.roleEntityId = roleEntityId;
     }
 
@@ -57,11 +57,11 @@ public class UserDAO {
         this.userId = userId;
     }
 
-    public String getId() {
+    public Long getId() {
         return Id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         Id = id;
     }
 }

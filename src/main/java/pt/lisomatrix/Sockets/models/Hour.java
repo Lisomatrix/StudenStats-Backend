@@ -1,8 +1,15 @@
 package pt.lisomatrix.Sockets.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 @Entity
@@ -14,11 +21,21 @@ public class Hour {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long hourId;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm", timezone = "UTC")
-    private Date startTime;
+    //@JsonFormat(pattern = "hh:mm", timezone = "GMT")
+    //@Column(columnDefinition="TIME")
+    //@Temporal(value = TemporalType.TIME)
+    //@DateTimeFormat(pattern = "HH:mm:ss")
+    //@JsonSerialize(using = LocalTimeSerializer.class)
+    //@JsonDeserialize(using = LocalTimeDeserializer.class)
+    private String startTime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "hh:mm", timezone = "UTC")
-    private Date endTime;
+    //@JsonFormat(pattern = "hh:mm", timezone = "GMT")
+    //@Column(columnDefinition="TIME")
+    //@Temporal(value = TemporalType.TIME)
+    //@DateTimeFormat(pattern = "HH:mm")
+    //@JsonSerialize(using = LocalTimeSerializer.class)
+    //@JsonDeserialize(using = LocalTimeDeserializer.class)
+    private String endTime;
 
     public long getHourId() {
         return hourId;
@@ -28,19 +45,19 @@ public class Hour {
         this.hourId = hourId;
     }
 
-    public Date getStartTime() {
+    public String getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime() {
+    public String getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
 }

@@ -18,6 +18,17 @@ public class Module {
     @JoinColumn(name = "discipline_id", nullable = false)
     private Discipline discipline;
 
+    @Column(nullable = false)
+    private long hours;
+
+    public long getHours() {
+        return hours;
+    }
+
+    public void setHours(long hours) {
+        this.hours = hours;
+    }
+
     public long getModuleId() {
         return moduleId;
     }

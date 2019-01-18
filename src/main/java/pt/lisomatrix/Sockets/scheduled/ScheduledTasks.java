@@ -5,15 +5,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import pt.lisomatrix.Sockets.redis.models.RedisUserStorage;
 import pt.lisomatrix.Sockets.redis.repositories.RedisUsersStorageRepository;
-import pt.lisomatrix.Sockets.repositories.LessonsRepository;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /***
@@ -30,6 +27,11 @@ public class ScheduledTasks {
      */
     @Autowired
     private RedisUsersStorageRepository redisUsersStorageRepository;
+
+    @Scheduled(fixedRate = 10000)
+    public void test() {
+        System.out.println(java.lang.Thread.activeCount());
+    }
 
     /***
      * Cleans all Redis Users Storage that are inactive for more than 1 hour

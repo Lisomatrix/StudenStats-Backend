@@ -9,11 +9,11 @@ public class MarkTest {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date date;
 
-    private long classId;
+    private Long classId;
 
     private String teacherId;
 
-    private long disciplineId;
+    private Long disciplineId;
 
     public Date getDate() {
         return date;
@@ -23,11 +23,11 @@ public class MarkTest {
         this.date = date;
     }
 
-    public long getClassId() {
+    public Long getClassId() {
         return classId;
     }
 
-    public void setClassId(long classId) {
+    public void setClassId(Long classId) {
         this.classId = classId;
     }
 
@@ -39,11 +39,11 @@ public class MarkTest {
         this.teacherId = teacherId;
     }
 
-    public long getDisciplineId() {
+    public Long getDisciplineId() {
         return disciplineId;
     }
 
-    public void setDisciplineId(long disciplineId) {
+    public void setDisciplineId(Long disciplineId) {
         this.disciplineId = disciplineId;
     }
 }

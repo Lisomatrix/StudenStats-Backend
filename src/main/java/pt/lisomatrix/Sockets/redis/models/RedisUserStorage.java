@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.RedisHash;
 import pt.lisomatrix.Sockets.models.*;
 import pt.lisomatrix.Sockets.models.Class;
 
+import javax.persistence.Entity;
 import java.util.Date;
 import java.util.List;
 

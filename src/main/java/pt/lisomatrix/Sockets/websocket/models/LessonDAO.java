@@ -1,6 +1,7 @@
 package pt.lisomatrix.Sockets.websocket.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import pt.lisomatrix.Sockets.models.Lesson;
 
 import java.util.Date;
 
@@ -19,6 +20,16 @@ public class LessonDAO {
     private int lessonNumber;
 
     private String summary;
+
+    private ModuleDAO module;
+
+    public ModuleDAO getModule() {
+        return module;
+    }
+
+    public void setModule(ModuleDAO module) {
+        this.module = module;
+    }
 
     public String getSummary() {
         return summary;

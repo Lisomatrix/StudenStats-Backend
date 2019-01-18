@@ -4,7 +4,7 @@ public class NewLesson {
 
     private long disciplineId;
 
-    private String teacherId;
+    private long teacherId;
 
     private long classId;
 
@@ -16,11 +16,11 @@ public class NewLesson {
         this.disciplineId = disciplineId;
     }
 
-    public String getTeacherId() {
+    public long getTeacherId() {
         return teacherId;
     }
 
-    public void setTeacherId(String teacherId) {
+    public void setTeacherId(long teacherId) {
         this.teacherId = teacherId;
     }
 

@@ -1,5 +1,7 @@
 package pt.lisomatrix.Sockets.websocket.models;
 
+import pt.lisomatrix.Sockets.models.Module;
+
 public class ModuleDAO {
 
     private long moduleId;
@@ -7,6 +9,14 @@ public class ModuleDAO {
     private String name;
 
     private long disciplineId;
+
+    public void populate(Module module) {
+
+        setName(module.getName());
+        setModuleId(module.getModuleId());
+        setDisciplineId(module.getDiscipline().getDisciplineId());
+
+    }
 
     public long getModuleId() {
         return moduleId;

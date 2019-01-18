@@ -1,5 +1,8 @@
 package pt.lisomatrix.Sockets.models;
 
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -30,13 +33,25 @@ public class Absence {
     @JoinColumn(name = "absenceType_id", nullable = false)
     private AbsenceType absenceType;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "module_id", nullable = false)
+    private Module module;
+
     @Column(nullable = false)
-    private boolean isJustificable;
+    private boolean isJustifiable;
 
     @Column(nullable = false)
     private boolean isJustified;
 
     private boolean isRecuperated;
+
+    public Module getModule() {
+        return module;
+    }
+
+    public void setModule(Module module) {
+        this.module = module;
+    }
 
     public boolean isRecuperated() {
         return isRecuperated;
@@ -94,12 +109,12 @@ public class Absence {
         this.absenceType = absenceType;
     }
 
-    public boolean isJustificable() {
-        return isJustificable;
+    public boolean isJustifiable() {
+        return isJustifiable;
     }
 
-    public void setJustificable(boolean justificable) {
-        isJustificable = justificable;
+    public void setJustifiable(boolean justifiable) {
+        isJustifiable = justifiable;
     }
 
     public boolean isJustified() {

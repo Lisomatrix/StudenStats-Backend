@@ -23,6 +23,5 @@ public interface AbsencesRepository extends JpaRepository<Absence, Long> {
     Optional<List<Absence>> findAllByStudentIn(List<Student> students);
 
     @Query( value = "select * from absence o where student_id in :ids", nativeQuery = true)
-    Optional<List<Absence>> findAllByStudentId(@Param("ids") String[] studentIds);
-    
+    Optional<List<Absence>> findAllByStudentId(@Param("ids") Long[] studentIds);
 }

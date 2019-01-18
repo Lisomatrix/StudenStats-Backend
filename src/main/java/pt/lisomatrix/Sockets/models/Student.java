@@ -1,7 +1,11 @@
 package pt.lisomatrix.Sockets.models;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "students")
@@ -9,7 +13,7 @@ public class Student {
 
     @Id
     @Column(name = "student_id", nullable = false)
-    private String studentId;
+    private Long studentId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -28,11 +32,11 @@ public class Student {
 
     private String mobilePhone;
 
-    public String getStudentId() {
+    public Long getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(String studentId) {
+    public void setStudentId(Long studentId) {
         this.studentId = studentId;
     }
 

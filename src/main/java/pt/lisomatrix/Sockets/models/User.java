@@ -2,18 +2,23 @@ package pt.lisomatrix.Sockets.models;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Entity
 @Table(name = "user_account")
-public class User {
+public class User  {
 
     @Id
     private Long userId;
 
-    @Column(unique = true, nullable = false)
-    private String email;
+    @Column(unique = true, nullable = false, name = "email")
+    private String username;
 
     private String password;
 
@@ -27,6 +32,22 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Role role;
+
+    public User() {
+    }
+
+    public User(Long userId) {
+        this.userId = userId;
+    }
+
+    public User(String username) {
+        this.username = username;
+    }
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 
     public Role getRole() {
         return role;
@@ -60,12 +81,12 @@ public class User {
         this.userId = userId;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {

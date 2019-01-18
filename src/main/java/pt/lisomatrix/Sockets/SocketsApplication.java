@@ -1,9 +1,7 @@
 package pt.lisomatrix.Sockets;
 
-import com.corundumstudio.socketio.AuthorizationListener;
-import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.HandshakeData;
-import com.corundumstudio.socketio.SocketIOServer;
+import com.corundumstudio.socketio.*;
+import com.corundumstudio.socketio.annotation.SpringAnnotationScanner;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +9,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -19,18 +16,17 @@ import pt.lisomatrix.Sockets.models.Hour;
 import pt.lisomatrix.Sockets.redis.models.RedisToken;
 import pt.lisomatrix.Sockets.redis.repositories.RedisTokenRepository;
 import pt.lisomatrix.Sockets.repositories.HoursRepository;
+import pt.lisomatrix.Sockets.repositories.ModuleGradesRepository;
 import pt.lisomatrix.Sockets.storage.FileStorageProperties;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableScheduling
-@ComponentScan("pt.lisomatrix.Sockets")
 @EnableConfigurationProperties({
 		FileStorageProperties.class
 })
@@ -47,6 +43,9 @@ public class SocketsApplication {
      */
     @Autowired
     private HoursRepository hoursRepository;
+
+    @Autowired
+    private ModuleGradesRepository moduleGradesRepository;
 
     /***
      * Configure WebSocket Server
@@ -65,7 +64,9 @@ public class SocketsApplication {
 		// Try to set the machine ip
         // If not possible set localhost
 	    try {
+
 	        config.setHostname("192.168.1.7");
+            //config.setHostname("192.168.1.15");
             //config.setHostname("10.38.30.185");
         } catch (Exception e) {
 	        config.setHostname("localhost");
@@ -86,8 +87,20 @@ public class SocketsApplication {
             e.printStackTrace();
         }
 
+        SocketConfig socketConfig = new SocketConfig();
+
+        socketConfig.setReuseAddress(true);
+        config.setHttpCompression(true);
+        config.setWebsocketCompression(true);
+        config.setSocketConfig(socketConfig);
+        config.setPort(444);
+
         // Set allowed origins
+        //config.setOrigin("https://localhost:8080");
 	    config.setOrigin("http://192.168.1.7:3000");
+        ///config.setOrigin("http://192.168.1.15:3000");
+        //config.setOrigin("https://84.91.148.60");
+
         // School
         //config.setOrigin("http://10.38.30.185:3000");
         //config.setOrigin("https://10.38.30.185:8080");
@@ -98,7 +111,7 @@ public class SocketsApplication {
         // If return true then User is authenticated
         // Otherwise Disconnect User
 		config.setAuthorizationListener(new AuthorizationListener() {
-			@Override
+            @Override
 			public boolean isAuthorized(HandshakeData handshakeData) {
 
                 // Get token from the query of the request
@@ -115,6 +128,7 @@ public class SocketsApplication {
                         RedisToken redisToken = foundToken.get();
                         // If it is not used
                         if(!redisToken.isUsed()) {
+
                             // Check if the authentication IP is the same as used in http auth
                             if(redisToken.getIpAddress().equals(handshakeData.getLocal().getHostString())) {
 
@@ -156,7 +170,7 @@ public class SocketsApplication {
 
             List<Hour> currentHours = hoursRepository.findAll();
 
-            if(currentHours.size() <= 0) {
+            if(currentHours.size() < 1) {
 
                 ObjectMapper mapper = new ObjectMapper();
 
@@ -171,7 +185,10 @@ public class SocketsApplication {
         }
     }
 
-
+    @Bean
+    public SpringAnnotationScanner springAnnotationScanner(SocketIOServer ssrv) {
+        return new SpringAnnotationScanner(ssrv);
+    }
 
 	public static void main(String[] args) {
 		SpringApplication.run(SocketsApplication.class, args);

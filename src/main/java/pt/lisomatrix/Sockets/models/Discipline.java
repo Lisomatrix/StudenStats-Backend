@@ -12,7 +12,7 @@ public class Discipline {
     @Id
     @Column(name = "discipline_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long disciplineId;
+    private Long disciplineId;
 
     @Column(nullable = false)
     private String name;
@@ -23,6 +23,14 @@ public class Discipline {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Teacher> teachers;
 
+    public  Discipline() {
+
+    }
+
+    public Discipline(long disciplineId) {
+        this.disciplineId = disciplineId;
+    }
+
     @JsonIgnore
     public List<Teacher> getTeachers() {
         return teachers;
@@ -32,7 +40,7 @@ public class Discipline {
         this.teachers = teachers;
     }
 
-    public long getDisciplineId() {
+    public Long getDisciplineId() {
         return disciplineId;
     }
 

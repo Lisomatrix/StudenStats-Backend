@@ -1,20 +1,19 @@
 package pt.lisomatrix.Sockets;
 
-import com.corundumstudio.socketio.HandshakeData;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import pt.lisomatrix.Sockets.redis.models.RedisStorageToken;
+import pt.lisomatrix.Sockets.models.Teacher;
+import pt.lisomatrix.Sockets.models.User;
 import pt.lisomatrix.Sockets.redis.models.RedisToken;
 import pt.lisomatrix.Sockets.redis.models.RedisUserStorage;
-import pt.lisomatrix.Sockets.redis.repositories.RedisStorageTokenRepository;
 import pt.lisomatrix.Sockets.redis.repositories.RedisTokenRepository;
 import pt.lisomatrix.Sockets.redis.repositories.RedisUsersStorageRepository;
-import pt.lisomatrix.Sockets.storage.StorageService;
+import pt.lisomatrix.Sockets.repositories.TeachersRepository;
+import pt.lisomatrix.Sockets.repositories.UsersRepository;
 
 import java.util.Date;
 import java.util.Optional;
@@ -28,17 +27,24 @@ public class ServerCommandLineRunner implements CommandLineRunner {
     /***
      * WebSockets server object
      */
-    private final SocketIOServer server;
+    @Autowired
+    private SocketIOServer server;
 
     /***
      * REDIS Users Storage repository to get in ram info
      */
+    @Autowired
     private RedisUsersStorageRepository redisUsersStorageRepository;
 
     /***
      * REDIS Authentication Tokens Repository to get info and update
      */
+    @Autowired
     private RedisTokenRepository redisTokenRepository;
+
+    @Autowired
+    private TeachersRepository teachersRepository;
+
 
     /***
      * Initialize all class dependencies
@@ -47,12 +53,12 @@ public class ServerCommandLineRunner implements CommandLineRunner {
      * @param redisUsersStorageRepository
      * @param redisTokenRepository
      */
-    @Autowired
+    /*@Autowired
     public ServerCommandLineRunner(SocketIOServer server, RedisUsersStorageRepository redisUsersStorageRepository, RedisTokenRepository redisTokenRepository) {
         this.server = server;
         this.redisUsersStorageRepository = redisUsersStorageRepository;
         this.redisTokenRepository = redisTokenRepository;
-    }
+    }*/
 
     /***
      * Configure WebSocket Server Events and start it
@@ -118,6 +124,7 @@ public class ServerCommandLineRunner implements CommandLineRunner {
         });
 
         // Start WebSocket Server
-        server.start();
+        //server.startAsync();
+        //server.start();
     }
 }

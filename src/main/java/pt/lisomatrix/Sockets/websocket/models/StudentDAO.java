@@ -1,12 +1,21 @@
 package pt.lisomatrix.Sockets.websocket.models;
 
+import pt.lisomatrix.Sockets.models.Student;
+
 public class StudentDAO {
 
-    private String studentId;
+    private Long studentId;
 
     private String name;
 
     private long classId;
+
+    public void populate(Student student, long classId) {
+
+        setName(student.getName());
+        setStudentId(student.getStudentId());
+        setClassId(classId);
+    }
 
     public long getClassId() {
         return classId;
@@ -16,11 +25,11 @@ public class StudentDAO {
         this.classId = classId;
     }
 
-    public String getStudentId() {
+    public Long getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(String studentId) {
+    public void setStudentId(Long studentId) {
         this.studentId = studentId;
     }
 

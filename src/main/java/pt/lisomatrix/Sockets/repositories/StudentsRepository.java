@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface StudentsRepository extends JpaRepository<Student, String> {
+public interface StudentsRepository extends JpaRepository<Student, Long> {
 
     Optional<Student> findFirstByUser(User user);
 

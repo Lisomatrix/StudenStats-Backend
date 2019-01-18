@@ -1,5 +1,6 @@
 package pt.lisomatrix.Sockets.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -39,6 +40,39 @@ public class Class {
     @ManyToMany()
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Discipline> disciplines;
+
+    @ManyToMany()
+    @LazyCollection(LazyCollectionOption.FALSE)
+    private List<Module> modules;
+
+    @JsonIgnore
+    @OneToOne
+    @LazyCollection(LazyCollectionOption.FALSE)
+    private Schedule schedule;
+
+    public Class() {
+
+    }
+
+    public Class(long classId) {
+        this.classId = classId;
+    }
+
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
+    }
+
+    public List<Module> getModules() {
+        return modules;
+    }
+
+    public void setModules(List<Module> modules) {
+        this.modules = modules;
+    }
 
     public List<Discipline> getDisciplines() {
         return disciplines;

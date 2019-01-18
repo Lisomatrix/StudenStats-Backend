@@ -24,7 +24,7 @@ public class RedisConfig {
      *
      * @return JedisConnectionFactory
      */
-    /*@Bean
+    @Bean
     JedisConnectionFactory jedisConnectionFactory() {
 
         // Establish connection with redis
@@ -32,14 +32,14 @@ public class RedisConfig {
 
         // Returns redis connection
         return new JedisConnectionFactory(redisStandaloneConfiguration);
-    }*/
+    }
 
     /***
      * returns an instance of RedisTemplate
      *
      * @return RedisTemplate<String, Object>
      */
-    /*@Bean
+    @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         // Create template
         final RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
@@ -49,7 +49,7 @@ public class RedisConfig {
 
         // returns template
         return template;
-    }*/
+    }
 
 
     /***
@@ -60,7 +60,7 @@ public class RedisConfig {
     /*@Bean
     MessageListenerAdapter messageListener() {
         return new MessageListenerAdapter(new RedisMessageSubscriber());
-    }*/
+    }
 
     /***
      * Returns RedisMessageListenerContainer instance

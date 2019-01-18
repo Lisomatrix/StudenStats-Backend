@@ -8,6 +8,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.view.RedirectView;
 import pt.lisomatrix.Sockets.constants.Roles;
@@ -23,6 +24,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ForkJoinPool;
 
 /***
  * Takes care of authenticating and registering users
@@ -33,8 +35,8 @@ public class AuthenticationController {
     /***
      * Database Repository to save tokens
      */
-    @Autowired
-    private TokensRepository tokensRepository;
+    //@Autowired
+    //private TokensRepository tokensRepository;
 
     /***
      * Database Repository to get and create users
@@ -171,7 +173,7 @@ public class AuthenticationController {
     public ResponseEntity<?> requestResetUserPassword(@PathVariable @NotNull String userEmail) {
 
         // Get User with email
-        Optional<User> foundUser = usersRepository.findByEmail(userEmail.toLowerCase());
+        Optional<User> foundUser = usersRepository.findFirstByUsername(userEmail.toLowerCase());
 
         // If found
         if(foundUser.isPresent()) {
@@ -227,13 +229,93 @@ public class AuthenticationController {
      */
     @CrossOrigin
     @PostMapping("/auth")
+    public DeferredResult<ResponseEntity<?>> userAuthentication(@RequestBody Authentication authentication, HttpServletRequest request) {
+
+        DeferredResult<ResponseEntity<?>> output = new DeferredResult<>();
+
+        // Get request ip address
+        String ipAddress = request.getRemoteAddr();
+
+        ForkJoinPool.commonPool().submit(() -> {
+
+            // Get the user with the email
+            Optional<User> foundUser = this.usersRepository.findFirstByUsername(authentication.getEmail().toLowerCase());
+
+            // If found
+            if(foundUser.isPresent()) {
+
+                // Retrieve it
+                User user = foundUser.get();
+
+                // Check if password matches
+                if(this.passwordEncoder.matches(authentication.getPassword(), user.getPassword())) {
+
+                    RedisToken redisToken = generateAccessToken(user, ipAddress);
+
+                    if(authentication.getRemember()) {
+                        UUID token = UUID.randomUUID();
+
+                        PermanentToken permanentToken = new PermanentToken();
+
+                        permanentToken.setPermanentToken(token.toString().replace("-", ""));
+                        permanentToken.setUser(user);
+
+                        permanentTokensRepository.save(permanentToken);
+
+                        RememberToken rememberToken = new RememberToken();
+
+                        rememberToken.setRedisToken(redisToken);
+                        rememberToken.setPermanentToken(permanentToken.getPermanentToken());
+
+                        output.setResult(new ResponseEntity<>(rememberToken, HttpStatus.OK));
+
+                        //return output;
+                    } else {
+                        // Return Token
+                        output.setResult(new ResponseEntity<>(redisToken, HttpStatus.OK));
+                        //return output;
+                    }
+
+
+                }  else {
+
+                    // Generate error response
+                    Response errorResponse = generateResponse("Senha errada", false);
+
+                    // Return Response
+                    output.setResult(new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN));
+
+                    //return output;
+                }
+            } else {
+                // Generate error response
+                Response errorResponse = generateResponse("Credenciais inválidos", false);
+
+                // Return Response
+                output.setResult(new ResponseEntity<>(errorResponse ,HttpStatus.FORBIDDEN));
+                //return output;
+            }
+
+        });
+
+        return output;
+    }
+
+    /***
+     * Takes care of authenticating the user and save a token on redis and on database
+     *
+     * @param authentication // The required object with the authentication credentials
+     * @return ResponseEntity<?>
+     */
+   /*@CrossOrigin
+    @PostMapping("/auth")
     public ResponseEntity<?> userAuthentication(@RequestBody Authentication authentication, HttpServletRequest request) {
 
         // Get request ip address
         String ipAddress = request.getRemoteAddr();
 
         // Get the user with the email
-        Optional<User> foundUser = this.usersRepository.findByEmail(authentication.getEmail().toLowerCase());
+        Optional<User> foundUser = this.usersRepository.findFirstByUsername(authentication.getUsername().toLowerCase());
 
         // If found
         if(foundUser.isPresent()) {
@@ -283,7 +365,7 @@ public class AuthenticationController {
             // Return Response
             return new ResponseEntity<>(errorResponse ,HttpStatus.FORBIDDEN);
         }
-    }
+    }*/
 
     /***
      * Takes care of authenticating the user and save a token on redis and on database
@@ -345,7 +427,7 @@ public class AuthenticationController {
        // Check if User exists
        if(foundUser.isPresent()) {
            // Check if given email already exists
-           Optional<User> emailExists = usersRepository.findByEmail(registration.getEmail().toLowerCase());
+           Optional<User> emailExists = usersRepository.findFirstByUsername(registration.getEmail().toLowerCase());
 
            if(!emailExists.isPresent()) {
 
@@ -354,7 +436,7 @@ public class AuthenticationController {
 
                if(!user.getCreated()) {
                    // Populate fields
-                   user.setEmail(registration.getEmail().toLowerCase());
+                   user.setUsername(registration.getEmail().toLowerCase());
                    user.setPassword(passwordEncoder.encode(registration.getPassword()));
                    user.setCreated(true);
 
@@ -479,7 +561,7 @@ public class AuthenticationController {
             }
         }
 
-        tokensRepository.save(accessToken);
+        //tokensRepository.save(accessToken);
         redisTokenRepository.save(redisToken);
 
         // Remove non necessary info

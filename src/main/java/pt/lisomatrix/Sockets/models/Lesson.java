@@ -20,18 +20,38 @@ public class Lesson {
     @JoinColumn(name = "teacher_id", nullable = false)
     private Teacher teacher;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "class_id", nullable = false)
     private Class classe;
 
     @OneToOne(fetch = FetchType.EAGER)
     private ScheduleHour scheduleHour;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "module_id", nullable = false)
+    private Module module;
+
     private Date date;
 
     private int lessonNumber;
 
     private String summary;
+
+    public Lesson(long lessonId) {
+        this.lessonId = lessonId;
+    }
+
+    public Lesson() {
+
+    }
+
+    public Module getModule() {
+        return module;
+    }
+
+    public void setModule(Module module) {
+        this.module = module;
+    }
 
     public ScheduleHour getScheduleHour() {
         return scheduleHour;

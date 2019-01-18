@@ -3,7 +3,7 @@ package pt.lisomatrix.Sockets.requests.models;
 
 public class MarkAbsence {
 
-    private String studentId;
+    private Long studentId;
 
     private long disciplineId;
 
@@ -16,6 +16,16 @@ public class MarkAbsence {
     private boolean create;
 
     private String description;
+
+    private Long absenceId;
+
+    public Long getAbsenceId() {
+        return absenceId;
+    }
+
+    public void setAbsenceId(Long absenceId) {
+        this.absenceId = absenceId;
+    }
 
     public String getDescription() {
         return description;
@@ -33,11 +43,11 @@ public class MarkAbsence {
         this.create = create;
     }
 
-    public String getStudentId() {
+    public Long getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(String studentId) {
+    public void setStudentId(Long studentId) {
         this.studentId = studentId;
     }
 

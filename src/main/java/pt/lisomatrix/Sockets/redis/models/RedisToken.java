@@ -17,15 +17,15 @@ public class RedisToken {
 
     private String ipAddress;
 
-    private String userRoleId;
+    private Long userRoleId;
 
     private Long userId;
 
-    public String getUserRoleId() {
+    public Long getUserRoleId() {
         return userRoleId;
     }
 
-    public void setUserRoleId(String userRoleId) {
+    public void setUserRoleId(Long userRoleId) {
         this.userRoleId = userRoleId;
     }
 

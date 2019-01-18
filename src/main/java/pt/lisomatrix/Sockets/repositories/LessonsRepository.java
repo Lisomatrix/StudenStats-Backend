@@ -15,6 +15,8 @@ import java.util.Optional;
 @Repository
 public interface LessonsRepository extends JpaRepository<Lesson, Long> {
 
+    Optional<Lesson> findFirstByClasseAndLessonId(Class a, Long lessonId);
+
     Optional<List<Lesson>> findAllByClasse(Class classs);
 
     Optional<List<Lesson>> findAllByClasseAndDiscipline(Class userClass, Discipline discipline);

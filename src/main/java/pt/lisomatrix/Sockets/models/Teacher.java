@@ -2,6 +2,9 @@ package pt.lisomatrix.Sockets.models;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 
@@ -11,23 +14,39 @@ public class Teacher {
 
     @Id
     @Column(unique = false, name = "teacher_id")
-    private String teacherId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long teacherId;
 
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private User user;
 
     @Column(nullable = false)
     private String name;
 
-    private int age;
+    private String birthDate;
 
-    public String getTeacherId() {
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "schedule_id", nullable = false)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    private Schedule schedule;
+
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
+    }
+
+    public Long getTeacherId() {
         return teacherId;
     }
 
-    public void setTeacherId(String teacherId) {
+    public void setTeacherId(Long teacherId) {
         this.teacherId = teacherId;
     }
 
@@ -47,11 +66,11 @@ public class Teacher {
         this.name = name;
     }
 
-    public int getAge() {
-        return age;
+    public String getBirthDate() {
+        return birthDate;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
     }
 }

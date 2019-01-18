@@ -1,5 +1,8 @@
 package pt.lisomatrix.Sockets.models;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,18 +21,16 @@ public class Schedule {
 
     private Date endDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Class aClass;
-
     @OneToMany(mappedBy = "schedule")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<ScheduleHour> scheduleHours = new ArrayList<>();
 
-    public Class getaClass() {
-        return aClass;
+    public List<ScheduleHour> getScheduleHours() {
+        return scheduleHours;
     }
 
-    public void setaClass(Class aClass) {
-        this.aClass = aClass;
+    public void setScheduleHours(List<ScheduleHour> scheduleHours) {
+        this.scheduleHours = scheduleHours;
     }
 
     public long getSchedulesId() {

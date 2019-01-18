@@ -1,6 +1,7 @@
 package pt.lisomatrix.Sockets.websocket.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import pt.lisomatrix.Sockets.models.Absence;
 
 import java.util.Date;
 
@@ -14,17 +15,41 @@ public class AbsenceDAO {
 
     private long lessonId;
 
-    private String studentId;
+    private Long studentId;
 
     private String AbsenceType;
 
     private String discipline;
 
-    private boolean isJustificable;
+    private boolean isJustifiable;
 
     private boolean isJustified;
 
     private boolean isRecuperated;
+
+    private long moduleId;
+
+    public void populate(Absence absence) {
+
+        setStudentId(absence.getStudent().getStudentId());
+        setAbsenceId(absence.getAbsenceId());
+        setLessonId(absence.getLesson().getLessonId());
+        setAbsenceType(absence.getAbsenceType().getName());
+        setDate(absence.getDate());
+        setDiscipline(absence.getDiscipline().getName());
+        setJustifiable(absence.isJustifiable());
+        setJustified(absence.isJustified());
+        setRecuperated(absence.isRecuperated());
+        setModuleId(absence.getModule().getModuleId());
+    }
+
+    public long getModuleId() {
+        return moduleId;
+    }
+
+    public void setModuleId(long moduleId) {
+        this.moduleId = moduleId;
+    }
 
     public boolean isRecuperated() {
         return isRecuperated;
@@ -34,11 +59,11 @@ public class AbsenceDAO {
         isRecuperated = recuperated;
     }
 
-    public String getStudentId() {
+    public Long getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(String studentId) {
+    public void setStudentId(Long studentId) {
         this.studentId = studentId;
     }
 
@@ -82,12 +107,12 @@ public class AbsenceDAO {
         AbsenceType = absenceType;
     }
 
-    public boolean isJustificable() {
-        return isJustificable;
+    public boolean isJustifiable() {
+        return isJustifiable;
     }
 
-    public void setJustificable(boolean justificable) {
-        isJustificable = justificable;
+    public void setJustifiable(boolean justifiable) {
+        isJustifiable = justifiable;
     }
 
     public boolean isJustified() {

@@ -1,8 +1,8 @@
 @primary-color: fade(#1890ff, 98%);
 @secondary-color: fade(#1890ff, 100%);
 @text-color: rgba(0, 0, 0, .65);
-@text-color-secondary: rgba(0, 0, 0, .45);
-@heading-color: rgba(0, 0, 0, .85);
+@text-color-secondary: rgba(0, 0, 0, 0.45);
+@heading-color: rgba(0, 0, 0, 0.85);
 @layout-body-background: #f0f2f5;
 @btn-primary-bg: fade(#1890ff, 99%);
 @layout-header-background: fade(#ffffff, 100%);
@@ -2087,9 +2087,13 @@ this.tinycolor = tinycolor;
 //     background-color: @primary-color !important;
 // }
 
+body {
+    background-color: @bg-color;
+}
+
 @media(max-width: 600px) {
     .cal {
-        margin-right: 0px !important;
+        margin: 0px !important;
     }
 }
 
@@ -2101,7 +2105,7 @@ this.tinycolor = tinycolor;
 }
 
 .ant-menu-dark {
-    background-color: #002140 !important;
+    background-color: #001529 !important;
 }
 
 .ant-menu-light {
@@ -2170,11 +2174,14 @@ span.username-text {
   border-radius: 0.5em !important;
   border: none !important;
 }
+body {
+  background-color: @bg-color;
+}
 .cal {
   background-color: @card-background;
 }
 .ant-menu-dark {
-  background-color: #002140 !important;
+  background-color: #001529 !important;
 }
 .ant-menu-light {
   background-color: @layout-header-background !important;
@@ -2192,11 +2199,19 @@ span.username-text {
 .rc-color-picker-panel-params-input {
   color: @primary-text;
 }
+.ant-card-bordered {
+  border-radius: 0.5em !important;
+}
+.antd-pro-charts--mini-progress-progressWrap {
+  background-color: lightgray;
+}
 .absence-list-container .absence-list-filters-container {
   background-color: @card-background;
+  border-radius: 0.5em 0.5em 0 0;
 }
 .absence-list-container .absence-list-table-container {
   background-color: @card-background;
+  border-radius: 0 0 0.5em 0.5em;
 }
 .student-row-container:hover {
   background-color: color(~`colorPalette("@{btn-primary-bg}", 1)`);
@@ -2205,11 +2220,18 @@ span.username-text {
   background-color: #fff;
   border-radius: 0.3em;
 }
+.student-card {
+  background-color: white;
+  border-radius: 0.5em;
+}
+body {
+  background-color: @bg-color;
+}
 .cal {
   background-color: @card-background;
 }
 .ant-menu-dark {
-  background-color: #002140 !important;
+  background-color: #001529 !important;
 }
 .ant-menu-light {
   background-color: @layout-header-background !important;
@@ -2228,8 +2250,10 @@ span.username-text {
   color: @primary-text;
 }
 .sider-shadow {
-  -webkit-box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
-  box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
+  box-shadow: 2px 0 8px 0 rgba(29, 35, 41, 0.05);
+}
+.logo-container {
+  box-shadow: 1px 1px 0 0 #e8e8e8;
 }
 .logo-container .logo-title-container .light {
   color: @primary-text;
@@ -2240,9 +2264,11 @@ span.username-text {
 .header {
   background-color: @layout-header-background;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  border-left: 1px solid #e8e8e8;
 }
 .header .trigger:hover {
   color: @secondary-color !important;
+  background: color(~`colorPalette("@{btn-primary-bg}", 1)`);
 }
 .header .notification-container:hover {
   background: color(~`colorPalette("@{btn-primary-bg}", 1)`);
@@ -2255,11 +2281,14 @@ span.username-text {
 .content {
   background-color: @bg-color;
 }
+body {
+  background-color: @bg-color;
+}
 .cal {
   background-color: @card-background;
 }
 .ant-menu-dark {
-  background-color: #002140 !important;
+  background-color: #001529 !important;
 }
 .ant-menu-light {
   background-color: @layout-header-background !important;
@@ -2295,11 +2324,14 @@ span.username-text {
 .ps__rail-y {
   border-radius: 25px;
 }
+body {
+  background-color: @bg-color;
+}
 .cal {
   background-color: @card-background;
 }
 .ant-menu-dark {
-  background-color: #002140 !important;
+  background-color: #001529 !important;
 }
 .ant-menu-light {
   background-color: @layout-header-background !important;
@@ -2324,15 +2356,19 @@ span.username-text {
 }
 .lesson-management-container {
   background-color: @card-background;
+  border-radius: 0.5em;
 }
 .reset-btn::-moz-focus-inner {
   border: 0;
+}
+body {
+  background-color: @bg-color;
 }
 .cal {
   background-color: @card-background;
 }
 .ant-menu-dark {
-  background-color: #002140 !important;
+  background-color: #001529 !important;
 }
 .ant-menu-light {
   background-color: @layout-header-background !important;
@@ -2355,16 +2391,23 @@ span.username-text {
 }
 .login-container {
   background-color: @card-background;
+  color: #fff;
+  background: linear-gradient(-45deg, #EE7752, #E73C7E, #23A6D5, #23D5AB);
+  background-size: 400% 400%;
 }
 .login-container .login-form {
   box-shadow: 0 0 100px rgba(0, 0, 0, 0.08);
   background-color: @card-background;
+  border-radius: 0.5em;
+}
+body {
+  background-color: @bg-color;
 }
 .cal {
   background-color: @card-background;
 }
 .ant-menu-dark {
-  background-color: #002140 !important;
+  background-color: #001529 !important;
 }
 .ant-menu-light {
   background-color: @layout-header-background !important;
@@ -2383,13 +2426,55 @@ span.username-text {
   color: @primary-text;
 }
 .mark-test-container .classes-container {
+  border-radius: 0.5em 0.5em 0 0;
   background-color: @card-background;
 }
 .mark-test-calendar-container {
   background-color: @card-background;
+  border-radius: 0 0 0.5em 0.5em;
 }
 .meals-container .tests {
   color: #666666;
+}
+
+.input-reset {
+  border: 0;
+}
+.schedule-container {
+  border-radius: 0.5em;
+}
+.schedule-container .schedule {
+  border: 1px solid black;
+  border-right: 0;
+}
+.schedule-column {
+  border-right: 1px solid black;
+}
+.schedule-row {
+  border: 1px solid black;
+}
+.schedule-row .schedule-row-classroom-container {
+  border-left: 1px solid black;
+}
+.column-header {
+  background-color: #f5222d;
+  border: 1px solid black;
+}
+.column-header .classroom-divisor {
+  border-left: 1px solid black;
+}
+.column-header .column-text-container .text {
+  color: white;
+}
+.hours-column {
+  background-color: white;
+}
+.hours-header {
+  background: white;
+}
+.schedule-creator-container {
+  background-color: white;
+  border-radius: 0.5em;
 }
 .search-container .search-input {
   border-bottom: 1px solid gray !important;
@@ -2402,11 +2487,14 @@ span.username-text {
   background: color(~`colorPalette("@{btn-primary-bg}", 1)`);
   color: @secondary-color;
 }
+body {
+  background-color: @bg-color;
+}
 .cal {
   background-color: @card-background;
 }
 .ant-menu-dark {
-  background-color: #002140 !important;
+  background-color: #001529 !important;
 }
 .ant-menu-light {
   background-color: @layout-header-background !important;
@@ -2451,15 +2539,19 @@ span.username-text {
 }
 .settings-container {
   background-color: @card-background;
+  border-radius: 0.5em;
 }
 .absence-container .tests {
   color: #666666;
+}
+body {
+  background-color: @bg-color;
 }
 .cal {
   background-color: @card-background;
 }
 .ant-menu-dark {
-  background-color: #002140 !important;
+  background-color: #001529 !important;
 }
 .ant-menu-light {
   background-color: @layout-header-background !important;
@@ -2490,11 +2582,14 @@ span.username-text {
 .user-label-container:hover .ant-dropdown-trigger .down-icon-container .anticon-down {
   color: @secondary-color;
 }
+body {
+  background-color: @bg-color;
+}
 .cal {
   background-color: @card-background;
 }
 .ant-menu-dark {
-  background-color: #002140 !important;
+  background-color: #001529 !important;
 }
 .ant-menu-light {
   background-color: @layout-header-background !important;
@@ -7713,11 +7808,14 @@ li.ant-tree-treenode-disabled > .ant-tree-node-content-wrapper:hover {
 .ant-upload-list .ant-upload-success-icon {
   color: #52c41a;
 }
+body {
+  background-color: @bg-color;
+}
 .cal {
   background-color: @card-background;
 }
 .ant-menu-dark {
-  background-color: #002140 !important;
+  background-color: #001529 !important;
 }
 .ant-menu-light {
   background-color: @layout-header-background !important;
@@ -7753,11 +7851,14 @@ li.ant-tree-treenode-disabled > .ant-tree-node-content-wrapper:hover {
 .ps__rail-y {
   border-radius: 25px;
 }
+body {
+  background-color: @bg-color;
+}
 .cal {
   background-color: @card-background;
 }
 .ant-menu-dark {
-  background-color: #002140 !important;
+  background-color: #001529 !important;
 }
 .ant-menu-light {
   background-color: @layout-header-background !important;

@@ -2,17 +2,15 @@ package pt.lisomatrix.Sockets.requests.models;
 
 import pt.lisomatrix.Sockets.websocket.models.AbsenceDAO;
 
-import java.util.List;
-
 public class RecuperateAbsence {
 
-    private List<AbsenceDAO> absenceDAOS;
+    private AbsenceDAO absence;
 
-    public List<AbsenceDAO> getAbsenceDAOS() {
-        return absenceDAOS;
+    public AbsenceDAO getAbsence() {
+        return absence;
     }
 
-    public void setAbsenceDAOS(List<AbsenceDAO> absenceDAOS) {
-        this.absenceDAOS = absenceDAOS;
+    public void setAbsence(AbsenceDAO absence) {
+        this.absence = absence;
     }
 }

@@ -11,7 +11,7 @@ public class Parent {
 
     @Id
     @Column(name = "parent_id")
-    private String parentId;
+    private Long parentId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -42,11 +42,11 @@ public class Parent {
         this.childs = childs;
     }
 
-    public String getParentId() {
+    public Long getParentId() {
         return parentId;
     }
 
-    public void setParentId(String parentId) {
+    public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
 

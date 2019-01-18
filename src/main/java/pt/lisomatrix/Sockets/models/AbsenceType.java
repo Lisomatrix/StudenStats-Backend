@@ -8,12 +8,21 @@ public class AbsenceType {
 
     @Id
     @Column(name = "absenceType_id")
-    private long absenceTypeId;
+    private Long absenceTypeId;
 
     @Column(nullable = false)
     private String name;
 
-    public long getAbsenceTypeId() {
+    public AbsenceType() {
+
+    }
+
+    public AbsenceType(Long id, String name) {
+        this.absenceTypeId = id;
+        this.name = name;
+    }
+
+    public Long getAbsenceTypeId() {
         return absenceTypeId;
     }
 

@@ -15,6 +15,8 @@ import pt.lisomatrix.Sockets.repositories.FilesRepository;
 import pt.lisomatrix.Sockets.requests.models.Response;
 import pt.lisomatrix.Sockets.requests.models.UploadFileResponse;
 import pt.lisomatrix.Sockets.storage.FileStorageService;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
@@ -34,6 +36,23 @@ public class AvatarController {
      */
     @Autowired
     private FilesRepository filesRepository;
+
+    //@Autowired
+    //private TestRepository testRepository;
+
+   /* @CrossOrigin
+    @GetMapping("/test")
+    public Flux<Test> testMono() {
+        return testRepository.findAll();
+    }
+
+    @CrossOrigin
+    @GetMapping("/insert")
+    public Mono<Test> inserMono() {
+        Test test = new Test("2");
+
+        return testRepository.save(test);
+    }*/
 
     /***
      * Allows users to upload files

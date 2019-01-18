@@ -2,6 +2,7 @@ package pt.lisomatrix.Sockets.websocket.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import pt.lisomatrix.Sockets.models.Teacher;
+import pt.lisomatrix.Sockets.models.Test;
 
 import java.util.Date;
 
@@ -13,7 +14,7 @@ public class TestDAO {
             (shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm")
     private Date date;
 
-    private String teacherId;
+    private Long teacherId;
 
     private String teacherName;
 
@@ -22,6 +23,17 @@ public class TestDAO {
     private String className;
 
     private String discipline;
+
+    public void populate(Test test) {
+
+        setClassId(test.getTestClass().getClassId());
+        setClassName(test.getTestClass().getName());
+        setDate(test.getDate());
+        setDiscipline(test.getDiscipline().getName());
+        setTeacherId(test.getTeacher().getTeacherId());
+        setTeacherName(test.getTeacher().getName());
+        setTestId(test.getTestId());
+    }
 
     public long getTestId() {
         return testId;
@@ -39,11 +51,11 @@ public class TestDAO {
         this.date = date;
     }
 
-    public String getTeacherId() {
+    public Long getTeacherId() {
         return teacherId;
     }
 
-    public void setTeacherId(String teacherId) {
+    public void setTeacherId(Long teacherId) {
         this.teacherId = teacherId;
     }
 

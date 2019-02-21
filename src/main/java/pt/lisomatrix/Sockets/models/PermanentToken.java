@@ -1,13 +1,14 @@
 package pt.lisomatrix.Sockets.models;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "permanent_token")
-public class PermanentToken {
+public class PermanentToken implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public long permanentTokenId;
 
     public String permanentToken;

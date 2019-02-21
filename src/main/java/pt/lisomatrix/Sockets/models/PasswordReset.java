@@ -1,13 +1,15 @@
 package pt.lisomatrix.Sockets.models;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Table(name = "password_reset")
 @Entity
-public class PasswordReset {
+public class PasswordReset implements Serializable {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private String passwordResetId;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
@@ -16,7 +18,6 @@ public class PasswordReset {
     @Column(nullable = false)
     private int resetCode;
 
-    @Column(nullable = false)
     private boolean isUsed;
 
     public boolean isUsed() {
@@ -43,11 +44,11 @@ public class PasswordReset {
         this.user = user;
     }
 
-    public String getId() {
-        return id;
+    public String getPasswordResetId() {
+        return passwordResetId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setPasswordResetId(String passwordResetId) {
+        this.passwordResetId = passwordResetId;
     }
 }

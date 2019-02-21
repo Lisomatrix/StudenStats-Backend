@@ -1,6 +1,5 @@
 package pt.lisomatrix.Sockets.controllers;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,9 +7,9 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.view.RedirectView;
+import pt.lisomatrix.Sockets.auth.AuthenticationHelper;
 import pt.lisomatrix.Sockets.constants.Roles;
 import pt.lisomatrix.Sockets.models.*;
 import pt.lisomatrix.Sockets.redis.models.RedisToken;
@@ -20,11 +19,7 @@ import pt.lisomatrix.Sockets.requests.models.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.ForkJoinPool;
+import java.util.*;
 
 /***
  * Takes care of authenticating and registering users
@@ -37,6 +32,9 @@ public class AuthenticationController {
      */
     //@Autowired
     //private TokensRepository tokensRepository;
+
+    @Autowired
+    private AuthenticationHelper authenticationHelper;
 
     /***
      * Database Repository to get and create users
@@ -188,7 +186,7 @@ public class AuthenticationController {
             // Create PasswordReset and populate it
             PasswordReset passwordReset = new PasswordReset();
 
-            passwordReset.setId(uniqueId);
+            passwordReset.setPasswordResetId(uniqueId);
             passwordReset.setUser(user);
             passwordReset.setResetCode(resetCode);
             passwordReset.setUsed(false);
@@ -229,93 +227,13 @@ public class AuthenticationController {
      */
     @CrossOrigin
     @PostMapping("/auth")
-    public DeferredResult<ResponseEntity<?>> userAuthentication(@RequestBody Authentication authentication, HttpServletRequest request) {
-
-        DeferredResult<ResponseEntity<?>> output = new DeferredResult<>();
-
-        // Get request ip address
-        String ipAddress = request.getRemoteAddr();
-
-        ForkJoinPool.commonPool().submit(() -> {
-
-            // Get the user with the email
-            Optional<User> foundUser = this.usersRepository.findFirstByUsername(authentication.getEmail().toLowerCase());
-
-            // If found
-            if(foundUser.isPresent()) {
-
-                // Retrieve it
-                User user = foundUser.get();
-
-                // Check if password matches
-                if(this.passwordEncoder.matches(authentication.getPassword(), user.getPassword())) {
-
-                    RedisToken redisToken = generateAccessToken(user, ipAddress);
-
-                    if(authentication.getRemember()) {
-                        UUID token = UUID.randomUUID();
-
-                        PermanentToken permanentToken = new PermanentToken();
-
-                        permanentToken.setPermanentToken(token.toString().replace("-", ""));
-                        permanentToken.setUser(user);
-
-                        permanentTokensRepository.save(permanentToken);
-
-                        RememberToken rememberToken = new RememberToken();
-
-                        rememberToken.setRedisToken(redisToken);
-                        rememberToken.setPermanentToken(permanentToken.getPermanentToken());
-
-                        output.setResult(new ResponseEntity<>(rememberToken, HttpStatus.OK));
-
-                        //return output;
-                    } else {
-                        // Return Token
-                        output.setResult(new ResponseEntity<>(redisToken, HttpStatus.OK));
-                        //return output;
-                    }
-
-
-                }  else {
-
-                    // Generate error response
-                    Response errorResponse = generateResponse("Senha errada", false);
-
-                    // Return Response
-                    output.setResult(new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN));
-
-                    //return output;
-                }
-            } else {
-                // Generate error response
-                Response errorResponse = generateResponse("Credenciais inválidos", false);
-
-                // Return Response
-                output.setResult(new ResponseEntity<>(errorResponse ,HttpStatus.FORBIDDEN));
-                //return output;
-            }
-
-        });
-
-        return output;
-    }
-
-    /***
-     * Takes care of authenticating the user and save a token on redis and on database
-     *
-     * @param authentication // The required object with the authentication credentials
-     * @return ResponseEntity<?>
-     */
-   /*@CrossOrigin
-    @PostMapping("/auth")
     public ResponseEntity<?> userAuthentication(@RequestBody Authentication authentication, HttpServletRequest request) {
 
         // Get request ip address
         String ipAddress = request.getRemoteAddr();
 
         // Get the user with the email
-        Optional<User> foundUser = this.usersRepository.findFirstByUsername(authentication.getUsername().toLowerCase());
+        Optional<User> foundUser = this.usersRepository.findFirstByUsername(authentication.getEmail().toLowerCase());
 
         // If found
         if(foundUser.isPresent()) {
@@ -327,6 +245,8 @@ public class AuthenticationController {
             if(this.passwordEncoder.matches(authentication.getPassword(), user.getPassword())) {
 
                 RedisToken redisToken = generateAccessToken(user, ipAddress);
+
+                //redisToken.setToken(tokenAuthenticationService.addAuthentication(redisToken.getToken()));
 
                 if(authentication.getRemember()) {
                     UUID token = UUID.randomUUID();
@@ -343,15 +263,16 @@ public class AuthenticationController {
                     rememberToken.setRedisToken(redisToken);
                     rememberToken.setPermanentToken(permanentToken.getPermanentToken());
 
+                    authenticationHelper.setAuthenticatedUser(user, redisToken.getToken());
+
                     return new ResponseEntity<>(rememberToken, HttpStatus.OK);
                 } else {
-                    // Return Token
+
+                    authenticationHelper.setAuthenticatedUser(user, redisToken.getToken());
+
                     return new ResponseEntity<>(redisToken, HttpStatus.OK);
                 }
-
-
             }  else {
-
                 // Generate error response
                 Response errorResponse = generateResponse("Senha errada", false);
 
@@ -365,7 +286,7 @@ public class AuthenticationController {
             // Return Response
             return new ResponseEntity<>(errorResponse ,HttpStatus.FORBIDDEN);
         }
-    }*/
+    }
 
     /***
      * Takes care of authenticating the user and save a token on redis and on database
@@ -398,6 +319,8 @@ public class AuthenticationController {
 
             rememberToken.setPermanentToken(permanentToken.getPermanentToken());
             rememberToken.setRedisToken(redisToken);
+
+            authenticationHelper.setAuthenticatedUser(user, redisToken.getToken());
 
             // Return Token
             return new ResponseEntity<>(rememberToken, HttpStatus.OK);
@@ -473,11 +396,6 @@ public class AuthenticationController {
            return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
        }
    }
-
-    @RequestMapping("/swagger-ui")
-    public String redirectToUi() {
-        return "redirect:/";
-    }
 
     /***
      * Response Generate helper

@@ -1,10 +1,11 @@
 package pt.lisomatrix.Sockets.models;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "disciplinary_absence")
-public class DisciplinaryAbsence {
+public class DisciplinaryAbsence implements Serializable {
 
     @Id
     @Column(name = "disciplinary_absence_id")

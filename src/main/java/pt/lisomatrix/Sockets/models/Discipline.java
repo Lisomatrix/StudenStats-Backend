@@ -3,11 +3,12 @@ package pt.lisomatrix.Sockets.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "Discipline")
-public class Discipline {
+public class Discipline implements Serializable {
 
     @Id
     @Column(name = "discipline_id")

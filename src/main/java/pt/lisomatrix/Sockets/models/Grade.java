@@ -1,10 +1,11 @@
 package pt.lisomatrix.Sockets.models;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "grade")
-public class Grade {
+public class Grade implements Serializable {
 
     @Id
     @Column(name = "grade_id")

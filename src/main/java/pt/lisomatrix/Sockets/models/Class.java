@@ -5,11 +5,12 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "class")
-public class Class {
+public class Class implements Serializable {
 
     @Id
     @Column(name = "class_id")

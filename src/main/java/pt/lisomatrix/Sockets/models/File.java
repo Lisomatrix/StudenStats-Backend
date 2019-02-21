@@ -4,31 +4,55 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "files")
-public class File {
+public class File implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long fileId;
+    //@GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "file_id")
+    private String fileId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
+    @Column(name = "file_name")
     private String fileName;
 
+    @Column(name = "file_path")
     private String filePath;
 
-    private String fileSize;
+    @Column(name = "file_size")
+    private long fileSize;
 
-    public Long getFileId() {
+    @Column(name = "storage_number")
+    private int storageNumber;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public int getStorageNumber() {
+        return storageNumber;
+    }
+
+    public void setStorageNumber(int storageNumber) {
+        this.storageNumber = storageNumber;
+    }
+
+    public String getFileId() {
         return fileId;
     }
 
-    public void setFileId(Long fileId) {
+    public void setFileId(String fileId) {
         this.fileId = fileId;
     }
 
@@ -48,11 +72,11 @@ public class File {
         this.filePath = filePath;
     }
 
-    public String getFileSize() {
+    public long getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(String fileSize) {
+    public void setFileSize(long fileSize) {
         this.fileSize = fileSize;
     }
 }

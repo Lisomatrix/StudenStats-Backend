@@ -4,11 +4,12 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "module_grade")
-public class ModuleGrade {
+public class ModuleGrade implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

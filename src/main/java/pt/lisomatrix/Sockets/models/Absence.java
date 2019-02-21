@@ -4,11 +4,12 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name = "absence")
-public class Absence {
+public class Absence implements Serializable {
 
     @Id
     @Column(name = "absence_id")

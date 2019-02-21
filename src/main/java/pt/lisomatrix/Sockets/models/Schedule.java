@@ -4,13 +4,14 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "schedule")
-public class Schedule {
+public class Schedule implements Serializable {
 
     @Id
     @Column(name = "schedule_id")

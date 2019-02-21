@@ -3,12 +3,14 @@ package pt.lisomatrix.Sockets.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "user_settings")
-public class UserSettings {
+public class UserSettings implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long userSettingsId;
 
     @JsonIgnore

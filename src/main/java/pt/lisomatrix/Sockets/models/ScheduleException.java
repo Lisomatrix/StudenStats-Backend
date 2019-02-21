@@ -1,10 +1,11 @@
 package pt.lisomatrix.Sockets.models;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "schedule_exception")
-public class ScheduleException {
+public class ScheduleException implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

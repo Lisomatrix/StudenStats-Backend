@@ -1,12 +1,13 @@
 package pt.lisomatrix.Sockets.models;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "hour_recuperation")
-public class HourRecuperation {
+public class HourRecuperation implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

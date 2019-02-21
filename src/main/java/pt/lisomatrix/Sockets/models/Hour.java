@@ -8,13 +8,14 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 @Entity
 @Table(name = "hour")
-public class Hour {
+public class Hour implements Serializable {
 
     @Id
     @Column(name = "hour_id")

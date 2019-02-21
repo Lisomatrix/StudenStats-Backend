@@ -28,3 +28,11 @@
 \.vscode/launch\.json
 
 run server\.txt
+
+\.DS_Store
+
+src/main/resources/public/\._\.DS_Store
+
+*.DS_Store
+
+src/main/resources/public/

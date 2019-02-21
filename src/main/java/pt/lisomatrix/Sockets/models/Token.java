@@ -2,9 +2,7 @@ package pt.lisomatrix.Sockets.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -13,6 +11,7 @@ import java.util.Date;
 public class Token implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private String token;
 
     private Long userId;

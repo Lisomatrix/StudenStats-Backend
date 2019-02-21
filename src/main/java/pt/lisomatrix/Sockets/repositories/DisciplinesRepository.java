@@ -13,6 +13,12 @@ import java.util.Optional;
 @Repository
 public interface DisciplinesRepository extends JpaRepository<Discipline, Long> {
 
+    @Query(value = "select * from discipline where discipline_id in (select disciplines_discipline_id from teacher_disciplines where teacher_teacher_id = (select teacher_teacher_id from teacher where user_id = (select user_id from user_account where email = :username)));", nativeQuery = true)
+    Optional<List<Discipline>> findAllByTeacherUsernameIsIn(@Param("username") String username);
+
+    @Query(value = "select * from discipline where discipline_id in (select disciplines_discipline_id from teacher_disciplines where teacher_teacher_id = (select teacher_teacher_id from teacher where user_id = :userId));", nativeQuery = true)
+    Optional<List<Discipline>> findAllByTeacherUserIdIsIn(@Param("userId") long userId);
+
     Optional<List<Discipline>> findAllByTeachersIsIn(Teacher teacher);
 
     @Query( value = "select * from discipline where discipline_id in (select disciplines_discipline_id from class_disciplines where class_class_id = :id)", nativeQuery = true)

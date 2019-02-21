@@ -1,13 +1,14 @@
 package pt.lisomatrix.Sockets.models;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "schedule_day")
-public class ScheduleDay {
+public class ScheduleDay implements Serializable {
 
     @Id
-    @GeneratedValue( strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long scheduleDayId;
 
     private String day;

@@ -17,4 +17,10 @@ public interface StudentsRepository extends JpaRepository<Student, Long> {
 
     @Query(value = "SELECT * FROM students WHERE student_id IN (SELECT students_student_id FROM class_students WHERE class_class_id = :id)", nativeQuery = true)
     Optional<List<Student>> findAllByClassId(@Param("id") long ClassId);
+
+    @Query(value = "select * from students where user_id = (select user_id from user_account where email = :username);", nativeQuery = true)
+    Optional<Student> findFirstByUsername(@Param("username") String username);
+
+    @Query(value = "select * from students where user_id = :userId;", nativeQuery = true)
+    Optional<Student> findFirstByUserId(@Param("userId") long userId);
 }

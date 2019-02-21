@@ -14,6 +14,10 @@ public class CustomUserDetails implements UserDetails {
 
     Set<GrantedAuthority> authorities=null;
 
+    public CustomUserDetails() {
+
+    }
+
     public CustomUserDetails(User user) {
         this.user = user;
         this.authorities = authorities;

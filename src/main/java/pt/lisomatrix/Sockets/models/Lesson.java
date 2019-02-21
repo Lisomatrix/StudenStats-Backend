@@ -1,11 +1,12 @@
 package pt.lisomatrix.Sockets.models;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name = "lesson")
-public class Lesson {
+public class Lesson implements Serializable {
 
     @Id
     @Column(name = "lesson_id")

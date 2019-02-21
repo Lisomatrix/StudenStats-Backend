@@ -12,6 +12,8 @@ import pt.lisomatrix.Sockets.exceptions.MyFileNotFoundException;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

@@ -3,10 +3,11 @@ package pt.lisomatrix.Sockets.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "schedule_hour")
-public class ScheduleHour {
+public class ScheduleHour implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

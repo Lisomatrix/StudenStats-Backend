@@ -2,15 +2,17 @@ package pt.lisomatrix.Sockets.models;
 
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "parent")
-public class Parent {
+public class Parent implements Serializable {
 
     @Id
     @Column(name = "parent_id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long parentId;
 
     @OneToOne(fetch = FetchType.LAZY)

@@ -18,4 +18,9 @@ public class ScheduleData {
     private List<Hour> hours;
 
     private List<ScheduleDay> scheduleDays;
+
+    /*public ScheduleData(List<Hour> hours, List<ScheduleDay> scheduleDays) {
+        this.hours = hours;
+        this.scheduleDays = scheduleDays;
+    }*/
 }

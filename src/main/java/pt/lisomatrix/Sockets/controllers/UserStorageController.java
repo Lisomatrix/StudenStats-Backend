@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -68,7 +69,7 @@ public class UserStorageController {
      * @return
      */
     @CrossOrigin
-    @PostMapping("/api/file")
+    @PostMapping("/user/file")
     public UploadFileResponse uploadAvatar(@RequestParam("file") MultipartFile file, Principal principal) throws Exception {
 
         User user = usersRepository.findById(Long.parseLong(principal.getName())).get();
@@ -164,8 +165,33 @@ public class UserStorageController {
                 HttpStatus.NOT_FOUND, "File not found");
     }
 
+    @CrossOrigin
+    @GetMapping("/user/{userId}/file")
+    public ResponseEntity<List<pt.lisomatrix.Sockets.models.File>> getUserFiles(@PathVariable String userId, Principal principal) {
+
+        if(userId.equals(principal.getName())) {
+
+            Optional<List<pt.lisomatrix.Sockets.models.File>> foundFiles = filesRepository.findUserFiles(Long.parseLong(principal.getName()));
+
+            if(foundFiles.isPresent()) {
+                return ResponseEntity.ok(foundFiles.get());
+            } else {
+                return ResponseEntity.ok(new ArrayList<pt.lisomatrix.Sockets.models.File>());
+            }
+        }
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED");
+    }
+
     private boolean hasStorage(User user) {
-        return filesRepository.getUsedSpace(user.getUserId()) <= STORAGE_PER_USER;
+
+        Long usedSpace = filesRepository.getUsedSpace(user.getUserId());
+
+        if(usedSpace == null || usedSpace <= STORAGE_PER_USER) {
+            return true;
+        }
+
+        return false;
     }
 
     private File getFileWithId(MultipartFile file) throws Exception {

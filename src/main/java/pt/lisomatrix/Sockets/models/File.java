@@ -1,5 +1,6 @@
 package pt.lisomatrix.Sockets.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -8,7 +9,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "files")
-public class File implements Serializable {
+public class File {
 
     @Id
     //@GeneratedValue(strategy = GenerationType.AUTO)
@@ -18,18 +19,21 @@ public class File implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private User user;
 
     @Column(name = "file_name")
     private String fileName;
 
     @Column(name = "file_path")
+    @JsonIgnore
     private String filePath;
 
     @Column(name = "file_size")
     private long fileSize;
 
     @Column(name = "storage_number")
+    @JsonIgnore
     private int storageNumber;
 
     public User getUser() {

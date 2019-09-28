@@ -2,12 +2,12 @@ package pt.lisomatrix.Sockets.models;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "teacher")
@@ -27,20 +27,36 @@ public class Teacher implements Serializable {
     @Column(nullable = false)
     private String name;
 
-    private String birthDate;
+    private String address;
 
-    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "schedule_id", nullable = false)
-    @LazyCollection(LazyCollectionOption.FALSE)
-    private Schedule schedule;
+    private Date birthDate;
 
-    public Schedule getSchedule() {
-        return schedule;
+    private String mobilePhone;
+
+    private String zipCode;
+
+    public String getZipCode() {
+        return zipCode;
     }
 
-    public void setSchedule(Schedule schedule) {
-        this.schedule = schedule;
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+    }
+
+    public String getMobilePhone() {
+        return mobilePhone;
+    }
+
+    public void setMobilePhone(String mobilePhone) {
+        this.mobilePhone = mobilePhone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public Long getTeacherId() {
@@ -67,11 +83,11 @@ public class Teacher implements Serializable {
         this.name = name;
     }
 
-    public String getBirthDate() {
+    public Date getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(String birthDate) {
+    public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
     }
 }

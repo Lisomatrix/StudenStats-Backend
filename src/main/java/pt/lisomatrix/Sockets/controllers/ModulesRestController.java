@@ -2,7 +2,6 @@ package pt.lisomatrix.Sockets.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -10,11 +9,10 @@ import pt.lisomatrix.Sockets.models.Class;
 import pt.lisomatrix.Sockets.models.Discipline;
 import pt.lisomatrix.Sockets.models.Module;
 import pt.lisomatrix.Sockets.repositories.ClassesRepository;
+import pt.lisomatrix.Sockets.repositories.DisciplinesRepository;
 import pt.lisomatrix.Sockets.repositories.ModulesRepository;
-import pt.lisomatrix.Sockets.requests.models.GetModules;
 import pt.lisomatrix.Sockets.requests.models.NewModule;
-import pt.lisomatrix.Sockets.websocket.models.Event;
-import pt.lisomatrix.Sockets.websocket.models.ModuleDAO;
+import pt.lisomatrix.Sockets.response.models.ModuleResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,37 +27,85 @@ public class ModulesRestController {
     @Autowired
     private ClassesRepository classesRepository;
 
-    @PostMapping("/module")
-    @PreAuthorize("hasRole('ROLE_PROFESSOR')")
+    @Autowired
+    private DisciplinesRepository disciplinesRepository;
+
+    @PutMapping("/module/{moduleId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @CrossOrigin
-    public ModuleDAO addNewModule(@RequestBody NewModule newModule) {
+    public ModuleResponse updateModule(@PathVariable long moduleId, @RequestBody NewModule newModule) {
+        Optional<Module> foundModule = modulesRepository.findById(moduleId);
+
+        if(foundModule.isPresent()) {
+
+            Module module = foundModule.get();
+
+            module.setName(newModule.getName());
+            module.setHours(newModule.getHours());
+
+            if(!module.getDiscipline().getDisciplineId().equals(newModule.getDisciplineId())) {
+
+                Optional<Discipline> foundDiscipline = disciplinesRepository.findById(newModule.getDisciplineId());
+
+                if(foundDiscipline.isPresent()) {
+
+                    module.setDiscipline(foundDiscipline.get());
+                } else {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Discipline not found!");
+                }
+            }
+
+            module = modulesRepository.save(module);
+
+            ModuleResponse moduleResponse = new ModuleResponse();
+
+            moduleResponse.populate(module);
+
+            return moduleResponse;
+        }
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Module not found!");
+    }
+
+    @PostMapping("/module")
+    @PreAuthorize("hasRole('ROLE_PROFESSOR') or hasRole('ROLE_ADMIN')")
+    @CrossOrigin
+    public ModuleResponse addNewModule(@RequestBody NewModule newModule) {
 
         Module module = new Module();
 
         module.setName(newModule.getName());
-        module.setDiscipline(new Discipline(newModule.getDisciplineId()));
+        module.setHours(newModule.getHours());
 
-        Module addedModule = modulesRepository.save(module);
+        Optional<Discipline> foundDiscipline = disciplinesRepository.findById(newModule.getDisciplineId());
 
-        ModuleDAO moduleDAO = new ModuleDAO();
+        if(foundDiscipline.isPresent()) {
+            module.setDiscipline(foundDiscipline.get());
 
-        moduleDAO.populate(addedModule);
+            Module addedModule = modulesRepository.save(module);
 
-        return moduleDAO;
+            ModuleResponse moduleResponse = new ModuleResponse();
+
+            moduleResponse.populate(addedModule);
+
+            return moduleResponse;
+        }
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Discipline not found!");
     }
 
     @GetMapping("/discipline/{disciplineId}/module")
     @PreAuthorize("hasRole('ROLE_PROFESSOR') or hasAnyRole('ROLE_ALUNO')")
     @CrossOrigin
-    public List<ModuleDAO> getModuleByDiscipline(@PathVariable("disciplineId") long disciplineId) {
+    public List<ModuleResponse> getModuleByDiscipline(@PathVariable("disciplineId") long disciplineId) {
 
         Optional<List<Module>> foundModules = modulesRepository.findAllByDiscipline(new Discipline(disciplineId));
 
         if(foundModules.isPresent()) {
 
-            List<ModuleDAO> moduleDAOList = populateModuleDAOList(foundModules.get());
+            List<ModuleResponse> moduleResponseList = populateModuleDAOList(foundModules.get());
 
-            return moduleDAOList;
+            return moduleResponseList;
         }
 
         throw new ResponseStatusException(
@@ -67,17 +113,17 @@ public class ModulesRestController {
     }
 
     @GetMapping("/class/{classId}/module")
-    @PreAuthorize("hasRole('ROLE_PROFESSOR') or hasAnyRole('ROLE_ALUNO')")
+    @PreAuthorize("hasRole('ROLE_PROFESSOR') or hasAnyRole('ROLE_ALUNO') or hasAnyRole('ROLE_PARENT')")
     @CrossOrigin
-    public List<ModuleDAO> getModulesByClass(@PathVariable("classId") long classId) {
+    public List<ModuleResponse> getModulesByClass(@PathVariable("classId") long classId) {
 
         Optional<Class> foundClass = classesRepository.findById(classId);
 
         if(foundClass.isPresent()) {
 
-            List<ModuleDAO> moduleDAOList = populateModuleDAOList(foundClass.get().getModules());
+            List<ModuleResponse> moduleResponseList = populateModuleDAOList(foundClass.get().getModules());
 
-            return moduleDAOList;
+            return moduleResponseList;
 
         } else {
             throw new ResponseStatusException(
@@ -85,24 +131,28 @@ public class ModulesRestController {
         }
     }
 
+    @GetMapping("/module")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @CrossOrigin
+    public List<ModuleResponse> getModules() {
+        return populateModuleDAOList(modulesRepository.findAll());
+    }
 
-    private List<ModuleDAO> populateModuleDAOList(List<Module> modules) {
+    private List<ModuleResponse> populateModuleDAOList(List<Module> modules) {
 
-        List<ModuleDAO> moduleDAOS = new ArrayList<>();
+        List<ModuleResponse> moduleResponses = new ArrayList<>();
 
         for(int i = 0; i < modules.size(); i++) {
 
             Module module = modules.get(i);
 
-            ModuleDAO moduleDAO = new ModuleDAO();
+            ModuleResponse moduleResponse = new ModuleResponse();
 
-            moduleDAO.setDisciplineId(module.getDiscipline().getDisciplineId());
-            moduleDAO.setModuleId(module.getModuleId());
-            moduleDAO.setName(module.getName());
+            moduleResponse.populate(module);
 
-            moduleDAOS.add(moduleDAO);
+            moduleResponses.add(moduleResponse);
         }
 
-        return moduleDAOS;
+        return moduleResponses;
     }
 }

@@ -13,7 +13,7 @@ public class PageNotFoundController {
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public String handleError404() {
-        return "redirect:/index.html";
+        return "redirect:/";
     }
 
     @GetMapping("/testing")

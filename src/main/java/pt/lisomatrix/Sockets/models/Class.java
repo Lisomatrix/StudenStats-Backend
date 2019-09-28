@@ -28,12 +28,10 @@ public class Class implements Serializable {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    //@OneToMany(fetch = FetchType.EAGER)
     @OneToMany()
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Student> students;
 
-    //@OneToMany(fetch = FetchType.EAGER)
     @ManyToMany()
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Teacher> teachers;
@@ -46,10 +44,22 @@ public class Class implements Serializable {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Module> modules;
 
-    @JsonIgnore
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    /*@JsonIgnore
     @OneToOne
     @LazyCollection(LazyCollectionOption.FALSE)
-    private Schedule schedule;
+    private Schedule schedule;*/
+
+    private int year;
 
     public Class() {
 
@@ -59,13 +69,21 @@ public class Class implements Serializable {
         this.classId = classId;
     }
 
-    public Schedule getSchedule() {
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    /*public Schedule getSchedule() {
         return schedule;
     }
 
     public void setSchedule(Schedule schedule) {
         this.schedule = schedule;
-    }
+    }*/
 
     public List<Module> getModules() {
         return modules;

@@ -171,28 +171,30 @@ public class AuthenticationController {
     public ResponseEntity<?> requestResetUserPassword(@PathVariable @NotNull String userEmail) {
 
         // Get User with email
-        Optional<User> foundUser = usersRepository.findFirstByUsername(userEmail.toLowerCase());
+        Optional<User> foundUser = usersRepository.findFirstByUsernameAndActive(userEmail.toLowerCase(), true);
 
         // If found
         if(foundUser.isPresent()) {
 
             // Get user
             User user = foundUser.get();
+
             // Generate unique id
-            String uniqueId = UUID.randomUUID().toString().replace("-", "");
+            //String uniqueId = UUID.randomUUID().toString().replace("-", "");
+
             // Generate random reset code
             int resetCode = generateRandomCode();
 
             // Create PasswordReset and populate it
             PasswordReset passwordReset = new PasswordReset();
 
-            passwordReset.setPasswordResetId(uniqueId);
+            //passwordReset.setPasswordResetId(uniqueId);
             passwordReset.setUser(user);
             passwordReset.setResetCode(resetCode);
             passwordReset.setUsed(false);
 
             // Save password reset to database
-            passwordResetsRepository.save(passwordReset);
+            passwordReset = passwordResetsRepository.save(passwordReset);
 
             // Create email and populate it
             SimpleMailMessage mailMessage = new SimpleMailMessage();
@@ -205,7 +207,8 @@ public class AuthenticationController {
             javaMailSender.send(mailMessage);
 
             // Generate response
-            Response successResponse = generateResponse(uniqueId.replace("-", ""), true);
+            //Response successResponse = generateResponse(null, true);
+            Response successResponse = generateResponse(passwordReset.getPasswordResetId(), true);
 
             // Send response
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
@@ -233,7 +236,7 @@ public class AuthenticationController {
         String ipAddress = request.getRemoteAddr();
 
         // Get the user with the email
-        Optional<User> foundUser = this.usersRepository.findFirstByUsername(authentication.getEmail().toLowerCase());
+        Optional<User> foundUser = this.usersRepository.findFirstByUsernameAndActive(authentication.getEmail().toLowerCase(), true);
 
         // If found
         if(foundUser.isPresent()) {
@@ -345,12 +348,12 @@ public class AuthenticationController {
     public ResponseEntity<?> userRegistration(@RequestBody Registration registration) {
 
        // Get User with the registration code
-       Optional<User> foundUser = usersRepository.findByRegistrationCode(registration.getRegistrationCode());
+       Optional<User> foundUser = usersRepository.findByRegistrationCodeAndActive(registration.getRegistrationCode(), true);
 
        // Check if User exists
        if(foundUser.isPresent()) {
            // Check if given email already exists
-           Optional<User> emailExists = usersRepository.findFirstByUsername(registration.getEmail().toLowerCase());
+           Optional<User> emailExists = usersRepository.findFirstByUsernameAndActive(registration.getEmail().toLowerCase(), true);
 
            if(!emailExists.isPresent()) {
 

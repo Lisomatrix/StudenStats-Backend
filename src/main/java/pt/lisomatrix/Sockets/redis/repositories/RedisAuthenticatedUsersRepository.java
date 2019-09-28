@@ -9,5 +9,4 @@ import java.util.Optional;
 @Repository
 public interface RedisAuthenticatedUsersRepository extends CrudRepository<AuthenticatedUser, String> {
 
-    //Optional<AuthenticatedUser> findFirstByToken(String token);
 }

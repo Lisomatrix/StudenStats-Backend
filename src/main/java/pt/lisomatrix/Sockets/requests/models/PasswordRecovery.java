@@ -4,7 +4,7 @@ public class PasswordRecovery {
 
     private int resetCode;
 
-    private String resetId;
+    private long resetId;
 
     private String password;
 
@@ -16,11 +16,11 @@ public class PasswordRecovery {
         this.resetCode = resetCode;
     }
 
-    public String getResetId() {
+    public long getResetId() {
         return resetId;
     }
 
-    public void setResetId(String resetId) {
+    public void setResetId(long resetId) {
         this.resetId = resetId;
     }
 

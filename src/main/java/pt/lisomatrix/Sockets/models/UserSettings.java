@@ -24,6 +24,17 @@ public class UserSettings implements Serializable {
     @Column(length = 600)
     private String settings;
 
+    @Column(name = "allow_emails")
+    private boolean allowEmails;
+
+    public boolean isAllowEmails() {
+        return allowEmails;
+    }
+
+    public void setAllowEmails(boolean allowEmails) {
+        this.allowEmails = allowEmails;
+    }
+
     public long getUserSettingsId() {
         return userSettingsId;
     }

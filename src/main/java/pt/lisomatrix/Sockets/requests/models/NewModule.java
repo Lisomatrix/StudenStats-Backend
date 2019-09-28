@@ -6,6 +6,16 @@ public class NewModule {
 
     private long disciplineId;
 
+    private int hours;
+
+    public int getHours() {
+        return hours;
+    }
+
+    public void setHours(int hours) {
+        this.hours = hours;
+    }
+
     public String getName() {
         return name;
     }

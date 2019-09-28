@@ -8,8 +8,6 @@ import pt.lisomatrix.Sockets.redis.repositories.RedisAuthenticatedUsersRepositor
 @Component
 public class AuthenticationHelper {
 
-
-    //@Autowired
     private RedisAuthenticatedUsersRepository redisAuthenticatedUsersRepository;
 
     public AuthenticationHelper(RedisAuthenticatedUsersRepository redisAuthenticatedUsersRepository) {

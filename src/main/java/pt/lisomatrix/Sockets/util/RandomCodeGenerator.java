@@ -1,5 +1,7 @@
 package pt.lisomatrix.Sockets.util;
 
+import org.springframework.stereotype.Component;
+
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -8,6 +10,7 @@ import java.util.Random;
  *
  * TODO PROBABLY NOT GONNA BE USED
  */
+@Component
 public class RandomCodeGenerator {
 
     static final private String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

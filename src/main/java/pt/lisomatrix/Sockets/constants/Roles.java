@@ -11,10 +11,10 @@ public enum Roles {
             return "ROLE_PROFESSOR";
         }
     },
-    SECRETARIO(),
     PARENTE{
-        public String toString() {
-            return "ROLE_PARENTE";
-        }
+        public String toString() { return "ROLE_PARENT"; }
+    },
+    ADMIN{
+        public String toString() { return "ROLE_ADMIN"; }
     }
 }

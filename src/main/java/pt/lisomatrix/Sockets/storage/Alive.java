@@ -2,13 +2,13 @@ package pt.lisomatrix.Sockets.storage;
 
 public class Alive {
 
-    public boolean isAlive;
+    public boolean alive;
 
     public boolean isAlive() {
-        return isAlive;
+        return alive;
     }
 
     public void setAlive(boolean alive) {
-        isAlive = alive;
+        this.alive = alive;
     }
 }

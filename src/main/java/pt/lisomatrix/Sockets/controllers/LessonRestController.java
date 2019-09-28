@@ -13,9 +13,8 @@ import pt.lisomatrix.Sockets.models.Teacher;
 import pt.lisomatrix.Sockets.repositories.*;
 import pt.lisomatrix.Sockets.requests.models.NewLesson;
 import pt.lisomatrix.Sockets.requests.models.UpdateLessonSummary;
-import pt.lisomatrix.Sockets.websocket.models.Event;
-import pt.lisomatrix.Sockets.websocket.models.LessonDAO;
-import pt.lisomatrix.Sockets.websocket.models.ModuleDAO;
+import pt.lisomatrix.Sockets.response.models.LessonResponse;
+import pt.lisomatrix.Sockets.response.models.ModuleResponse;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -71,7 +70,7 @@ public class LessonRestController {
     @CrossOrigin
     @PostMapping("/lesson")
     @PreAuthorize("hasRole('ROLE_PROFESSOR')")
-    public LessonDAO newLesson(@RequestBody  NewLesson newLesson, Principal principal) {
+    public LessonResponse newLesson(@RequestBody  NewLesson newLesson, Principal principal) {
 
         Teacher teacher = teachersRepository.findFirstByUserId(Long.parseLong(principal.getName())).get();
 
@@ -115,14 +114,12 @@ public class LessonRestController {
                 pt.lisomatrix.Sockets.models.Module currentModule = null;
 
                 for(int i = 0; i < modules.size(); i++) {
-                    if(modules.get(i).getHours() >  lastLessonNumber) {
-                        if(modules.size() < i+1) {
-                            currentModule = modules.get(i);
-                            break;
-                        } else if(modules.size() > i+1 && modules.get(i+1).getHours() < lastLessonNumber) {
-                            currentModule = modules.get(i);
-                            break;
-                        }
+
+                    Module temp = modules.get(i);
+
+                    if(temp.getHours() > lastLessonNumber) {
+                        currentModule = temp;
+                        break;
                     }
                 }
 
@@ -135,20 +132,13 @@ public class LessonRestController {
 
                 Lesson createdLesson = lessonsRepository.save(lesson);
 
-                ModuleDAO moduleDAO = new ModuleDAO();
+                ModuleResponse moduleResponse = new ModuleResponse();
 
-                moduleDAO.populate(currentModule);
+                moduleResponse.populate(currentModule);
 
-                LessonDAO createdLessonDAO = new LessonDAO();
+                LessonResponse createdLessonResponse = populateLessonDAO(createdLesson);
 
-                createdLessonDAO.setLessonId(createdLesson.getLessonId());
-                createdLessonDAO.setDisciplineId(createdLesson.getDiscipline().getDisciplineId());
-                createdLessonDAO.setDate(createdLesson.getDate());
-                createdLessonDAO.setClassId(createdLesson.getClasse().getClassId());
-                createdLessonDAO.setLessonNumber(createdLesson.getLessonNumber());
-                createdLessonDAO.setModule(moduleDAO);
-
-                return createdLessonDAO;
+                return createdLessonResponse;
 
             } else {
 
@@ -177,21 +167,15 @@ public class LessonRestController {
                 // Insert object to database
                 Lesson createdLesson = lessonsRepository.save(lesson);
 
-                LessonDAO createdLessonDAO = new LessonDAO();
+                LessonResponse createdLessonResponse = populateLessonDAO(lesson);
 
-                createdLessonDAO.setLessonId(createdLesson.getLessonId());
-                createdLessonDAO.setDisciplineId(createdLesson.getDiscipline().getDisciplineId());
-                createdLessonDAO.setDate(createdLesson.getDate());
-                createdLessonDAO.setClassId(createdLesson.getClasse().getClassId());
-                createdLessonDAO.setLessonNumber(createdLesson.getLessonNumber());
+                ModuleResponse moduleResponse = new ModuleResponse();
 
-                ModuleDAO moduleDAO = new ModuleDAO();
+                moduleResponse.populate(currentModule);
 
-                moduleDAO.populate(currentModule);
+                createdLessonResponse.setModule(moduleResponse);
 
-                createdLessonDAO.setModule(moduleDAO);
-
-                return createdLessonDAO;
+                return createdLessonResponse;
             }
         }
 
@@ -202,7 +186,7 @@ public class LessonRestController {
     @PreAuthorize("hasRole('ROLE_PROFESSOR')")
     @GetMapping("class/{classId}/discipline/{disciplineId}/lesson")
     @CrossOrigin
-    public List<LessonDAO> getClassLessons(@PathVariable("classId") long classId, @PathVariable("disciplineId") long disciplineId, Principal principal) {
+    public List<LessonResponse> getClassLessons(@PathVariable("classId") long classId, @PathVariable("disciplineId") long disciplineId, Principal principal) {
 
         Optional<Class> foundClass = classesRepository.findById(classId);
 
@@ -231,15 +215,15 @@ public class LessonRestController {
 
                     if(foundLessons.isPresent()) {
 
-                        List<LessonDAO> lessonDAOList = populateLessonsDAOList(foundLessons.get(), classId, disciplineId);
+                        List<LessonResponse> lessonResponseList = populateLessonsDAOList(foundLessons.get(), classId, disciplineId);
 
-                        return lessonDAOList;
+                        return lessonResponseList;
                     }
 
                 } else {
-                    List<LessonDAO> lessonDAOS = new ArrayList<>();
+                    List<LessonResponse> lessonResponses = new ArrayList<>();
 
-                    return lessonDAOS;
+                    return lessonResponses;
                 }
             }
 
@@ -251,6 +235,18 @@ public class LessonRestController {
                 HttpStatus.NOT_FOUND, "Class not found");
     }
 
+    private LessonResponse populateLessonDAO(Lesson lesson) {
+        LessonResponse lessonResponse = new LessonResponse();
+
+        lessonResponse.setLessonId(lesson.getLessonId());
+        lessonResponse.setDisciplineId(lesson.getDiscipline().getDisciplineId());
+        lessonResponse.setDate(lesson.getDate());
+        lessonResponse.setClassId(lesson.getClasse().getClassId());
+        lesson.setLessonNumber(lesson.getLessonNumber());
+
+        return lessonResponse;
+    }
+
     /***
      * Helper to convert from List<Lesson> to List<LessonDAO>
      *
@@ -259,26 +255,26 @@ public class LessonRestController {
      * @param disciplineId
      * @return
      */
-    private List<LessonDAO> populateLessonsDAOList(List<Lesson> lessons, long classId, long disciplineId) {
+    private List<LessonResponse> populateLessonsDAOList(List<Lesson> lessons, long classId, long disciplineId) {
 
-        List<LessonDAO> lessonDAOList = new ArrayList<LessonDAO>();
+        List<LessonResponse> lessonResponseList = new ArrayList<LessonResponse>();
 
         for(int i = 0; i < lessons.size(); i++) {
 
             Lesson tempLesson = lessons.get(i);
 
-            LessonDAO lessonDAO = new LessonDAO();
+            LessonResponse lessonResponse = new LessonResponse();
 
-            lessonDAO.setClassId(classId);
-            lessonDAO.setDate(tempLesson.getDate());
-            lessonDAO.setDisciplineId(disciplineId);
-            lessonDAO.setLessonId(tempLesson.getLessonId());
-            lessonDAO.setLessonNumber(tempLesson.getLessonNumber());
-            lessonDAO.setSummary(tempLesson.getSummary());
+            lessonResponse.setClassId(classId);
+            lessonResponse.setDate(tempLesson.getDate());
+            lessonResponse.setDisciplineId(disciplineId);
+            lessonResponse.setLessonId(tempLesson.getLessonId());
+            lessonResponse.setLessonNumber(tempLesson.getLessonNumber());
+            lessonResponse.setSummary(tempLesson.getSummary());
 
-            lessonDAOList.add(lessonDAO);
+            lessonResponseList.add(lessonResponse);
         }
 
-        return lessonDAOList;
+        return lessonResponseList;
     }
 }

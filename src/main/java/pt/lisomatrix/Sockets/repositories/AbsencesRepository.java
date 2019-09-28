@@ -29,7 +29,8 @@ public interface AbsencesRepository extends JpaRepository<Absence, Long> {
     @Transactional
     Optional<List<Absence>> deleteAbsenceByStudentAndDisciplineAndAbsenceType(Student student, Discipline discipline, AbsenceType absenceType);
 
-    Optional<List<Absence>> findAllByStudentIn(List<Student> students);
+    @Query(value = "select * from absence where student_id in (select student_id from parent_childs where parent_parent_id = (select parent_id from parent where user_id = :userId limit 1));", nativeQuery = true)
+    Optional<List<Absence>> findAllByParentUserId(@Param("userId") long userId);
 
     @Query( value = "select * from absence o where student_id in :ids", nativeQuery = true)
     Optional<List<Absence>> findAllByStudentId(@Param("ids") Long[] studentIds);

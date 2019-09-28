@@ -1,6 +1,5 @@
 package pt.lisomatrix.Sockets.auth;
 
-import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,13 +20,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@AllArgsConstructor
 public class CustomAuthenticationFilter extends GenericFilterBean {
 
     private static final String HEADER_STRING = "Authorization";
     private static final String OPTIONS_METHOD_STRING = "OPTIONS";
 
-    private RedisAuthenticatedUsersRepository redisAuthenticatedUsersRepository;
+    private final RedisAuthenticatedUsersRepository redisAuthenticatedUsersRepository;
+
+    public CustomAuthenticationFilter(RedisAuthenticatedUsersRepository redisAuthenticatedUsersRepository) {
+        this.redisAuthenticatedUsersRepository = redisAuthenticatedUsersRepository;
+    }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -41,6 +43,7 @@ public class CustomAuthenticationFilter extends GenericFilterBean {
             authorities.add(new SimpleGrantedAuthority(Roles.ALUNO.toString()));
             authorities.add(new SimpleGrantedAuthority(Roles.PARENTE.toString()));
             authorities.add(new SimpleGrantedAuthority(Roles.PROFESSOR.toString()));
+            authorities.add(new SimpleGrantedAuthority(Roles.ADMIN.toString()));
 
             SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("123", null, authorities));
             filterChain.doFilter(servletRequest, servletResponse);

@@ -30,7 +30,7 @@ public interface LessonsRepository extends JpaRepository<Lesson, Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE lesson SET summary = ?1 WHERE lesson_id = ?2", nativeQuery = true)
+    @Query(value = "UPDATE lesson SET summary = ?1 WHERE lesson_id = ?2 ;", nativeQuery = true)
     void updateSummary(String summary, Long id);
 
 }

@@ -32,16 +32,26 @@ public class Parent implements Serializable {
 
     private String profession;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    List<Student> childs;
+    private String zipCode;
 
-
-    public List<Student> getChilds() {
-        return childs;
+    public String getZipCode() {
+        return zipCode;
     }
 
-    public void setChilds(List<Student> childs) {
-        this.childs = childs;
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+    }
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @CollectionTable(name = "parent_childs")
+    private List<Student> children;
+
+    public List<Student> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Student> children) {
+        this.children = children;
     }
 
     public Long getParentId() {

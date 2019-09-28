@@ -8,13 +8,9 @@ import pt.lisomatrix.Sockets.models.Class;
 import pt.lisomatrix.Sockets.models.Discipline;
 import pt.lisomatrix.Sockets.models.Teacher;
 import pt.lisomatrix.Sockets.models.Test;
-import pt.lisomatrix.Sockets.repositories.ClassesRepository;
-import pt.lisomatrix.Sockets.repositories.TeachersRepository;
-import pt.lisomatrix.Sockets.repositories.TestsRepository;
+import pt.lisomatrix.Sockets.repositories.*;
 import pt.lisomatrix.Sockets.requests.models.MarkTest;
-import pt.lisomatrix.Sockets.requests.models.RemoveTest;
-import pt.lisomatrix.Sockets.websocket.models.Event;
-import pt.lisomatrix.Sockets.websocket.models.TestDAO;
+import pt.lisomatrix.Sockets.response.models.TestResponse;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -31,29 +27,30 @@ public class TestsRestController {
 
     private TeachersRepository teachersRepository;
 
-    public TestsRestController(TestsRepository testsRepository, ClassesRepository classesRepository, TeachersRepository teachersRepository) {
+    private ModulesRepository modulesRepository;
+
+    public TestsRestController(TestsRepository testsRepository, ClassesRepository classesRepository, TeachersRepository teachersRepository, ModulesRepository modulesRepository) {
         this.testsRepository = testsRepository;
         this.classesRepository = classesRepository;
         this.teachersRepository = teachersRepository;
+        this.modulesRepository = modulesRepository;
     }
 
     @GetMapping("/class/{classId}/test")
     @PreAuthorize("hasRole('ROLE_PROFESSOR') or hasAnyRole('ROLE_ALUNO')")
     @CrossOrigin
-    public List<TestDAO> getClassTests(@PathVariable("classId") long classId) {
+    public List<TestResponse> getClassTests(@PathVariable("classId") long classId) {
 
-        Optional<List<Test>> foundTests = testsRepository.findAllByTestClassAndDateAfter(new Class(classId), new Date());
+        Optional<List<Test>> foundTests = testsRepository.findAllByTestClass(new Class(classId));
 
         if(foundTests.isPresent()) {
 
-            List<TestDAO> tests = populateDTAList(foundTests.get());
+            List<TestResponse> tests = populateDTAList(foundTests.get());
 
             return tests;
 
         } else {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Tests not found"
-            );
+            return new ArrayList<TestResponse>();
         }
 
     }
@@ -61,7 +58,7 @@ public class TestsRestController {
     @GetMapping("/teacher/{teacherId}/test")
     @PreAuthorize("hasRole('ROLE_PROFESSOR')")
     @CrossOrigin
-    public List<TestDAO> getTeacherTests(@PathVariable("teacherId") long teacherId, Principal principal) {
+    public List<TestResponse> getTeacherTests(@PathVariable("teacherId") long teacherId, Principal principal) {
 
         Teacher teacher = teachersRepository.findFirstByUserId(Long.parseLong(principal.getName())).get();
 
@@ -71,14 +68,12 @@ public class TestsRestController {
 
             if(foundTests.isPresent()) {
 
-                List<TestDAO> tests = populateDTAList(foundTests.get());
+                List<TestResponse> tests = populateDTAList(foundTests.get());
 
                 return tests;
 
             } else {
-                throw new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Tests not found"
-                );
+                return new ArrayList<TestResponse>();
             }
 
         } else {
@@ -88,10 +83,29 @@ public class TestsRestController {
         }
     }
 
+    @GetMapping("/student/{studentId}/test")
+    @PreAuthorize("hasRole('ROLE_PARENT')")
+    @CrossOrigin
+    public List<TestResponse> getChildTests(@PathVariable("studentId") long studentId, Principal principal) {
+
+        Optional<Class> foundClass = classesRepository.findFirstByParentUserIdAndStudentId(Long.parseLong(principal.getName()), studentId);
+
+        if(foundClass.isPresent()) {
+
+            Optional<List<Test>> foundTests = testsRepository.findAllByTestClass(foundClass.get());
+
+            if(foundTests.isPresent()) {
+                return populateDTAList(foundTests.get());
+            }
+        }
+
+        return new ArrayList<>();
+    }
+
     @PostMapping("/class/{classId}/test")
     @PreAuthorize("hasRole('ROLE_PROFESSOR')")
     @CrossOrigin
-    public TestDAO markTest(@RequestBody MarkTest markTest, @PathVariable("classId") long classId, Principal principal) {
+    public TestResponse markTest(@RequestBody MarkTest markTest, @PathVariable("classId") long classId, Principal principal) {
 
         Date date = new Date();
 
@@ -133,19 +147,28 @@ public class TestsRestController {
 
                         Test newTest = new Test();
 
-                        newTest.setTestClass(aClass);
-                        newTest.setTeacher(teacher);
-                        newTest.setDiscipline(discipline);
-                        newTest.setDate(markTest.getDate());
-                        //newTest.setModule(); // TODO NEED MODULES IN THIS
+                        //Optional<pt.lisomatrix.Sockets.models.Module> foundLastModule = modulesRepository.findLastModule(discipline.getDisciplineId(), aClass.getClassId());
+                        Optional<pt.lisomatrix.Sockets.models.Module> foundLastModule = modulesRepository.findById(markTest.getModuleId());
 
-                        Test savedTest = testsRepository.save(newTest);
+                        if(foundLastModule.isPresent()) {
+                            newTest.setTestClass(aClass);
+                            newTest.setTeacher(teacher);
+                            newTest.setDiscipline(discipline);
+                            newTest.setDate(markTest.getDate());
+                            newTest.setModule(foundLastModule.get());
 
-                        TestDAO testDAO = new TestDAO();
+                            Test savedTest = testsRepository.save(newTest);
 
-                        testDAO.populate(savedTest);
+                            TestResponse testResponse = new TestResponse();
 
-                        return testDAO;
+                            testResponse.populate(savedTest);
+
+                            return testResponse;
+                        } else {
+                            throw new ResponseStatusException(
+                                    HttpStatus.NOT_FOUND, "Module not found"
+                            );
+                        }
                     } else {
                         throw new ResponseStatusException(
                                 HttpStatus.UNAUTHORIZED, "Unauthorized"
@@ -175,7 +198,7 @@ public class TestsRestController {
     @DeleteMapping("class/{classId}/test/{testId}")
     @PreAuthorize("hasRole('ROLE_PROFESSOR')")
     @CrossOrigin
-    public TestDAO removeTest(@PathVariable("classId") long classId, @PathVariable("testId") long testId, Principal principal) {
+    public TestResponse removeTest(@PathVariable("classId") long classId, @PathVariable("testId") long testId, Principal principal) {
 
         Optional<Test> foundTest = testsRepository.findById(testId);
 
@@ -189,11 +212,11 @@ public class TestsRestController {
 
                 testsRepository.delete(test);
 
-                TestDAO testDAO = new TestDAO();
+                TestResponse testResponse = new TestResponse();
 
-                testDAO.populate(test);
+                testResponse.populate(test);
 
-                return testDAO;
+                return testResponse;
             } else {
                 throw new ResponseStatusException(
                         HttpStatus.UNAUTHORIZED, "Unauthorized"
@@ -213,19 +236,20 @@ public class TestsRestController {
      * @param tests
      * @return
      */
-    private List<TestDAO> populateDTAList(List<Test> tests) {
+    private List<TestResponse> populateDTAList(List<Test> tests) {
 
-        List<TestDAO> testDAOList = new ArrayList<TestDAO>();
+        List<TestResponse> testResponseList = new ArrayList<TestResponse>();
 
 
         for(int i = 0; i < tests.size(); i++) {
-            TestDAO testDAO = new TestDAO();
+            TestResponse testResponse = new TestResponse();
 
-            testDAO.populate(tests.get(i));
+            testResponse.populate(tests.get(i));
 
-            testDAOList.add(testDAO);
+            testResponseList.add(testResponse);
         }
 
-        return testDAOList;
+        return testResponseList;
     }
+
 }

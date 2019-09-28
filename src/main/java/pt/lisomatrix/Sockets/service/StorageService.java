@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import pt.lisomatrix.Sockets.requests.models.UploadFileResponse;
 import pt.lisomatrix.Sockets.storage.Alive;
@@ -37,19 +38,6 @@ public class StorageService {
                 .bodyToMono(Resource.class);
     }
 
-    public Mono<UploadFileResponse> saveFile(MultipartFile file) {
-
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("file", file);
-
-        return webClient.post()
-                .uri("/api/5532/file")
-                .syncBody(builder.build())
-                .header(AUTHORIZATION_HEADER, "8899")
-                .retrieve()
-                .bodyToMono(UploadFileResponse.class);
-    }
-
     public Mono<UploadFileResponse> saveResource(FileSystemResource file, String url) throws Exception {
 
         webClient.mutate().baseUrl("http://" + url + ":8080");
@@ -68,6 +56,17 @@ public class StorageService {
 
                     return Mono.just(new UploadFileResponse("", "", "", 1l));
                 });
+    }
+
+    public Mono<ClientResponse> deleteFile(String file, String url) {
+
+        webClient.mutate().baseUrl("http://" + url + ":8080");
+
+        return webClient.delete()
+                .uri("/delete/{file}", file)
+                .header(AUTHORIZATION_HEADER, "8899")
+                .exchange();
+
     }
 
     public Mono<SetStorage> setStorageServer(SetStorage setStorage) {
@@ -94,6 +93,8 @@ public class StorageService {
     }
 
     public Mono<Alive> getAlive(String url) {
+
+        webClient.mutate().baseUrl(url);
 
         return webClient.get()
                 .uri("/alive")

@@ -1,6 +1,5 @@
 package pt.lisomatrix.Sockets.controllers;
 
-import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,9 +14,8 @@ import pt.lisomatrix.Sockets.models.Schedule;
 import pt.lisomatrix.Sockets.models.ScheduleDay;
 import pt.lisomatrix.Sockets.repositories.*;
 import pt.lisomatrix.Sockets.requests.models.ScheduleData;
-import pt.lisomatrix.Sockets.websocket.models.ScheduleDAO;
+import pt.lisomatrix.Sockets.response.models.ScheduleResponse;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -39,8 +37,8 @@ public class SchedulesRestController {
 
     private List<ScheduleDay> scheduleDays;
 
-    public SchedulesRestController(SchedulesRepository schedulesRepository, ScheduleHoursRepository scheduleHoursRepository
-            , ScheduleExceptionsRepository scheduleExceptionsRepository, ScheduleDayRepository scheduleDayRepository, HoursRepository hoursRepository) {
+    public SchedulesRestController(SchedulesRepository schedulesRepository, ScheduleHoursRepository scheduleHoursRepository, 
+        ScheduleExceptionsRepository scheduleExceptionsRepository, ScheduleDayRepository scheduleDayRepository, HoursRepository hoursRepository) {
 
         this.scheduleDayRepository = scheduleDayRepository;
         this.scheduleHoursRepository = scheduleHoursRepository;
@@ -61,16 +59,16 @@ public class SchedulesRestController {
     @GetMapping("/class/{classId}/schedule")
     @PreAuthorize("hasRole('ROLE_PROFESSOR') or hasRole('ROLE_ALUNO')")
     @CrossOrigin
-    public ScheduleDAO getClassSchedule(@PathVariable("classId") long classId) {
+    public ScheduleResponse getClassSchedule(@PathVariable("classId") long classId) {
 
         Optional<Schedule> schedule = schedulesRepository.findFirstByClass(classId);
 
         if(schedule.isPresent()) {
-            ScheduleDAO scheduleDAO = new ScheduleDAO();
+            ScheduleResponse scheduleResponse = new ScheduleResponse();
 
-            scheduleDAO.populate(schedule.get());
+            scheduleResponse.populate(schedule.get());
 
-            return scheduleDAO;
+            return scheduleResponse;
         }
 
         throw new ResponseStatusException(
@@ -88,11 +86,11 @@ public class SchedulesRestController {
                 .thenApply(foundSchedule -> {
                     if(foundSchedule.isPresent()) {
 
-                        ScheduleDAO scheduleDAO = new ScheduleDAO();
+                        ScheduleResponse scheduleResponse = new ScheduleResponse();
 
-                        scheduleDAO.populate(foundSchedule.get());;
+                        scheduleResponse.populate(foundSchedule.get());;
 
-                        deferredResult.setResult(ResponseEntity.ok(scheduleDAO));
+                        deferredResult.setResult(ResponseEntity.ok(scheduleResponse));
 
                     } else {
                         deferredResult.setResult(ResponseEntity.notFound().build());
@@ -107,16 +105,16 @@ public class SchedulesRestController {
     @GetMapping("/teacher/{teacherId}/schedule")
     @PreAuthorize("hasRole('ROLE_PROFESSOR')")
     @CrossOrigin
-    public ScheduleDAO getTeacherSchedule(@PathVariable("teacherId") long teacherId) {
+    public ScheduleResponse getTeacherSchedule(@PathVariable("teacherId") long teacherId) {
 
         Optional<Schedule> schedule = schedulesRepository.findFirstByTeacher(teacherId);
 
         if(schedule.isPresent()) {
-            ScheduleDAO scheduleDAO = new ScheduleDAO();
+            ScheduleResponse scheduleResponse = new ScheduleResponse();
 
-            scheduleDAO.populate(schedule.get());
+            scheduleResponse.populate(schedule.get());
 
-            return scheduleDAO;
+            return scheduleResponse;
         }
 
         throw new ResponseStatusException(
@@ -134,11 +132,11 @@ public class SchedulesRestController {
                 .thenApply(foundSchedule -> {
                     if(foundSchedule.isPresent()) {
 
-                        ScheduleDAO scheduleDAO = new ScheduleDAO();
+                        ScheduleResponse scheduleResponse = new ScheduleResponse();
 
-                        scheduleDAO.populate(foundSchedule.get());
+                        scheduleResponse.populate(foundSchedule.get());
 
-                        deferredResult.setResult(ResponseEntity.ok(scheduleDAO));
+                        deferredResult.setResult(ResponseEntity.ok(scheduleResponse));
                     } else {
                         deferredResult.setResult(ResponseEntity.notFound().build());
                     }

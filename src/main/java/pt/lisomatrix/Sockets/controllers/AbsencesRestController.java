@@ -2,20 +2,23 @@ package pt.lisomatrix.Sockets.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import pt.lisomatrix.Sockets.models.*;
 import pt.lisomatrix.Sockets.models.Class;
 import pt.lisomatrix.Sockets.repositories.*;
 import pt.lisomatrix.Sockets.requests.models.MarkAbsence;
-import pt.lisomatrix.Sockets.websocket.models.AbsenceDAO;
+import pt.lisomatrix.Sockets.response.models.AbsenceResponse;
 
 import javax.annotation.PostConstruct;
 import java.security.Principal;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,6 +53,29 @@ public class AbsencesRestController {
         absenceTypeList = absenceTypesRepository.findAll();
     }
 
+    private final CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
+
+    @GetMapping(value = "/absence", produces= MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter streamSseMvc() {
+        SseEmitter emitter = new SseEmitter();
+        ExecutorService sseMvcExecutor = Executors.newSingleThreadExecutor();
+        sseMvcExecutor.execute(() -> {
+            try {
+                for (int i = 0; true; i++) {
+                    SseEmitter.SseEventBuilder event = SseEmitter.event()
+                            .data("SSE MVC - " + LocalTime.now().toString())
+                            .id(String.valueOf(i))
+                            .name("sse event - mvc");
+                    emitter.send(event);
+                    Thread.sleep(1000);
+                }
+            } catch (Exception ex) {
+                emitter.completeWithError(ex);
+            }
+        });
+        return emitter;
+    }
+
     @GetMapping("/absence/types")
     @CrossOrigin
     public List<AbsenceType> getAbsenceType() {
@@ -64,7 +90,7 @@ public class AbsencesRestController {
     @PreAuthorize("hasRole('ROLE_PROFESSOR')")
     @PostMapping("/absence")
     @CrossOrigin
-    public AbsenceDAO markAbsence(@RequestBody MarkAbsence markAbsence, Principal principal) throws Exception {
+    public AbsenceResponse markAbsence(@RequestBody MarkAbsence markAbsence, Principal principal) throws Exception {
 
         Optional<Lesson> foundLesson = lessonsRepository.findById(markAbsence.getLessonId());
 
@@ -176,11 +202,10 @@ public class AbsencesRestController {
 
                 disciplinaryAbsencesRepository.save(disciplinaryAbsence);
 
-                AbsenceDAO newAbsenceDAO = new AbsenceDAO();
-                newAbsenceDAO.populate(absence);
+                AbsenceResponse newAbsenceResponse = new AbsenceResponse();
+                newAbsenceResponse.populate(absence);
 
-                //throw new Exception();
-                return newAbsenceDAO;
+                return newAbsenceResponse;
 
             } else {
 
@@ -190,11 +215,11 @@ public class AbsencesRestController {
 
                 Absence newAbsence = absencesRepository.save(absence);
 
-                AbsenceDAO newAbsenceDAO = new AbsenceDAO();
+                AbsenceResponse newAbsenceResponse = new AbsenceResponse();
 
-                newAbsenceDAO.populate(newAbsence);
+                newAbsenceResponse.populate(newAbsence);
 
-                return newAbsenceDAO;
+                return newAbsenceResponse;
             }
 
         }
@@ -313,11 +338,11 @@ public class AbsencesRestController {
                 }).thenApplyAsync((y) -> absencesRepository.save(y))
                 .thenApply((savedAbsence) -> {
 
-                    AbsenceDAO newAbsenceDAO = new AbsenceDAO();
-                    newAbsenceDAO.populate(savedAbsence);
+                    AbsenceResponse newAbsenceResponse = new AbsenceResponse();
+                    newAbsenceResponse.populate(savedAbsence);
 
-                    deferredResult.setResult(ResponseEntity.ok().body(newAbsenceDAO));
-                    return ResponseEntity.ok().body(newAbsenceDAO);
+                    deferredResult.setResult(ResponseEntity.ok().body(newAbsenceResponse));
+                    return ResponseEntity.ok().body(newAbsenceResponse);
                 });
 
         return deferredResult;
@@ -439,11 +464,11 @@ public class AbsencesRestController {
                 }).thenApplyAsync((y) -> disciplinaryAbsencesRepository.save(y))
                 .thenApply((savedAbsence) -> {
 
-                    AbsenceDAO newAbsenceDAO = new AbsenceDAO();
-                    newAbsenceDAO.populate(savedAbsence.getAbsence());
+                    AbsenceResponse newAbsenceResponse = new AbsenceResponse();
+                    newAbsenceResponse.populate(savedAbsence.getAbsence());
 
-                    deferredResult.setResult(ResponseEntity.ok().body(newAbsenceDAO));
-                    return ResponseEntity.ok().body(newAbsenceDAO);
+                    deferredResult.setResult(ResponseEntity.ok().body(newAbsenceResponse));
+                    return ResponseEntity.ok().body(newAbsenceResponse);
                 });
 
         return deferredResult;
@@ -505,7 +530,7 @@ public class AbsencesRestController {
                 .thenApplyAsync((foundDeletedAbsences) -> {
                     List<Absence> deletedAbsences = foundDeletedAbsences.get();
 
-                    List<AbsenceDAO> listDAO = populateDTAList(deletedAbsences);
+                    List<AbsenceResponse> listDAO = populateDTAList(deletedAbsences);
 
                     deferredResult.setResult(ResponseEntity.ok(listDAO));
 
@@ -518,7 +543,7 @@ public class AbsencesRestController {
     @DeleteMapping("/absence/{absenceId}")
     @PreAuthorize("hasRole('ROLE_PROFESSOR')")
     @CrossOrigin
-    public List<AbsenceDAO> removeAbsence(@PathVariable("absenceId") long absenceId, Principal principal) throws Exception {
+    public List<AbsenceResponse> removeAbsence(@PathVariable("absenceId") long absenceId, Principal principal) throws Exception {
 
         Optional<Absence> foundAbsence = absencesRepository.findById(absenceId);
 
@@ -551,7 +576,7 @@ public class AbsencesRestController {
 
                         List<Absence> deletedAbsences = foundDeletedAbsences.get();
 
-                        List<AbsenceDAO> listDAO = populateDTAList(deletedAbsences);
+                        List<AbsenceResponse> listDAO = populateDTAList(deletedAbsences);
 
                         return listDAO;
                     }
@@ -569,7 +594,7 @@ public class AbsencesRestController {
     @PutMapping("/absence/{absenceId}")
     @PreAuthorize("hasRole('ROLE_PROFESSOR')")
     @CrossOrigin
-    public AbsenceDAO justifyAbsence(@PathVariable("absenceId") long absenceId, Principal principal) throws Exception {
+    public AbsenceResponse justifyAbsence(@PathVariable("absenceId") long absenceId, Principal principal) throws Exception {
 
         Optional<Absence> foundAbsence = absencesRepository.findById(absenceId);
 
@@ -595,11 +620,11 @@ public class AbsencesRestController {
 
                 absencesRepository.save(absence);
 
-                AbsenceDAO absenceDAO = new AbsenceDAO();
+                AbsenceResponse absenceResponse = new AbsenceResponse();
 
-                absenceDAO.populate(absence);
+                absenceResponse.populate(absence);
 
-                return absenceDAO;
+                return absenceResponse;
             } else {
                 throw new ResponseStatusException(
                         HttpStatus.UNAUTHORIZED, "Unauthorized");
@@ -661,11 +686,11 @@ public class AbsencesRestController {
                 .thenApplyAsync((absence) -> absencesRepository.save(absence))
                 .thenApplyAsync((justifiedAbsence) -> {
 
-                    AbsenceDAO absenceDAO = new AbsenceDAO();
+                    AbsenceResponse absenceResponse = new AbsenceResponse();
 
-                    absenceDAO.populate(justifiedAbsence);
+                    absenceResponse.populate(justifiedAbsence);
 
-                    deferredResult.setResult(ResponseEntity.ok(absenceDAO));
+                    deferredResult.setResult(ResponseEntity.ok(absenceResponse));
                     return null;
                 })
         .exceptionally((ex) -> {
@@ -676,24 +701,49 @@ public class AbsencesRestController {
         return deferredResult;
     }
 
-    @GetMapping("/student/absence")
-    @PreAuthorize("hasRole('ROLE_ALUNO')")
-    @CrossOrigin
-    public List<AbsenceDAO> getStudentAbsences(Principal principal) {
+    @PutMapping("/absence/{absenceId}/recuperate")
+    @PreAuthorize("hasRole('ROLE_PROFESSOR')")
+    public AbsenceResponse recuperateAbsence(@PathVariable long absenceId, Principal principal) {
 
-        Optional<List<Absence>> foundAbsenceListener = absencesRepository.findAllByStudentUserId(Long.parseLong(principal.getName()));
+        Optional<Absence> foundAbsence = absencesRepository.findById(absenceId);
 
-        if(foundAbsenceListener.isPresent()) {
+        if(foundAbsence.isPresent()) {
 
-            List<Absence> absences = foundAbsenceListener.get();
+            Absence absence = foundAbsence.get();
 
-            List<AbsenceDAO> absenceDAOList = populateDTAList(absences);
+            absence.setRecuperated(!absence.isRecuperated());
 
-            return absenceDAOList;
+            Absence savedAbsence = absencesRepository.save(absence);
+
+            AbsenceResponse absenceResponse = new AbsenceResponse();
+
+            absenceResponse.populate(savedAbsence);
+
+            return absenceResponse;
         }
 
         throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "Absences not found");
+    }
+
+    @GetMapping("/parent/absence")
+    @PreAuthorize("hasRole('ROLE_PARENT')")
+    @CrossOrigin
+    public List<AbsenceResponse> getChildAbsences(Principal principal) {
+
+        Optional<List<Absence>> foundAbsence = absencesRepository.findAllByParentUserId(Long.parseLong(principal.getName()));
+
+        return getAbsenceDAOList(foundAbsence);
+    }
+
+    @GetMapping("/student/absence")
+    @PreAuthorize("hasRole('ROLE_ALUNO')")
+    @CrossOrigin
+    public List<AbsenceResponse> getStudentAbsences(Principal principal) {
+
+        Optional<List<Absence>> foundAbsence = absencesRepository.findAllByStudentUserId(Long.parseLong(principal.getName()));
+
+        return getAbsenceDAOList(foundAbsence);
     }
 
     @GetMapping("/student/absence/async")
@@ -710,9 +760,9 @@ public class AbsencesRestController {
 
                         List<Absence> absences = foundAbsences.get();
 
-                        List<AbsenceDAO> absenceDAOList = populateDTAList(absences);
+                        List<AbsenceResponse> absenceResponseList = populateDTAList(absences);
 
-                        deferredResult.setResult(ResponseEntity.ok(absenceDAOList));
+                        deferredResult.setResult(ResponseEntity.ok(absenceResponseList));
                         return null;
                     } else {
                         deferredResult.setResult(ResponseEntity.badRequest().build());
@@ -726,14 +776,16 @@ public class AbsencesRestController {
     @GetMapping("/class/absence")
     @PreAuthorize("hasRole('ROLE_PROFESSOR')")
     @CrossOrigin
-    public List<AbsenceDAO> getClassAbsences(Principal principal) throws Exception {
+    public List<AbsenceResponse> getClassAbsences(Principal principal) throws Exception {
 
-        Class aClass = classesRepository.findFirstByTeacherUserId(Long.parseLong(principal.getName())).get();
-        /*try {
-            Thread.sleep(2000);
-        }catch (Exception ex) {
+        Optional<Class> foundClass =  classesRepository.findFirstByTeacherUserId(Long.parseLong(principal.getName()));
 
-        }*/
+        if(!foundClass.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Class not found!");
+        }
+
+        Class aClass = foundClass.get();
+
         List<Student> students = aClass.getStudents();
 
         Long[] studentIds = new Long[students.size()];
@@ -747,9 +799,9 @@ public class AbsencesRestController {
         if(foundAbsences.isPresent()) {
             List<Absence> absences = foundAbsences.get();
 
-            List<AbsenceDAO> absenceDAOS = populateDTAList(absences);
+            List<AbsenceResponse> absenceResponses = populateDTAList(absences);
 
-            return absenceDAOS;
+            return absenceResponses;
 
         } else {
             throw new ResponseStatusException(
@@ -765,12 +817,6 @@ public class AbsencesRestController {
 
         return CompletableFuture.supplyAsync(() -> classesRepository.findFirstByTeacherUserId(Long.parseLong(principal.getName())))
                 .thenApplyAsync((foundClass) -> {
-
-                    /*try {
-                        Thread.sleep(2000);
-                    }catch (Exception ex) {
-
-                    }*/
 
                     if(foundClass.isPresent()) {
 
@@ -793,9 +839,9 @@ public class AbsencesRestController {
                     if(foundAbsences.isPresent()) {
                         List<Absence> absences = foundAbsences.get();
 
-                        List<AbsenceDAO> absenceDAOS = populateDTAList(absences);
+                        List<AbsenceResponse> absenceResponses = populateDTAList(absences);
 
-                        return ResponseEntity.ok().body(absenceDAOS);
+                        return ResponseEntity.ok().body(absenceResponses);
                     }
 
                     return ResponseEntity.badRequest().build();
@@ -805,7 +851,7 @@ public class AbsencesRestController {
     @GetMapping("/lesson/{lessonId}/absence")
     @PreAuthorize("hasRole('ROLE_PROFESSOR')")
     @CrossOrigin
-    public List<AbsenceDAO> getLessonAbsences(@PathVariable("lessonId") long lessonId) {
+    public List<AbsenceResponse> getLessonAbsences(@PathVariable("lessonId") long lessonId) {
 
         Optional<List<Absence>> foundAbsences = absencesRepository.findAllByLesson(new Lesson(lessonId));
 
@@ -813,14 +859,14 @@ public class AbsencesRestController {
 
             List<Absence> absences = foundAbsences.get();
 
-            List<AbsenceDAO> absenceDAOList = populateDTAList(absences);
+            List<AbsenceResponse> absenceResponseList = populateDTAList(absences);
 
-            return absenceDAOList;
+            return absenceResponseList;
         }
 
-        List<AbsenceDAO> absenceDAOS = new ArrayList<>();
+        List<AbsenceResponse> absenceResponses = new ArrayList<>();
 
-        return absenceDAOS;
+        return absenceResponses;
     }
 
     @GetMapping("/lesson/{lessonId}/absence/async")
@@ -833,18 +879,14 @@ public class AbsencesRestController {
 
         CompletableFuture.supplyAsync(() -> absencesRepository.findAllByLesson(new Lesson(lessonId)))
                 .thenApplyAsync((foundAbsences) -> {
-                    /*try {
-                        Thread.sleep(2000);
-                    }catch (Exception ex) {
 
-                    }*/
                     if(foundAbsences.isPresent()) {
 
                         List<Absence> absences = foundAbsences.get();
 
-                        List<AbsenceDAO> absenceDAOList = populateDTAList(absences);
+                        List<AbsenceResponse> absenceResponseList = populateDTAList(absences);
 
-                        deferredResult.setResult(ResponseEntity.ok().body(absenceDAOList));
+                        deferredResult.setResult(ResponseEntity.ok().body(absenceResponseList));
                         return null;
                     } else {
                         deferredResult.setResult(ResponseEntity.badRequest().build());
@@ -855,27 +897,41 @@ public class AbsencesRestController {
         return deferredResult;
     }
 
+    private List<AbsenceResponse> getAbsenceDAOList(Optional<List<Absence>> foundAbsence) {
+
+        if(foundAbsence.isPresent()) {
+
+            List<Absence> absences = foundAbsence.get();
+
+            List<AbsenceResponse> absenceResponseList = populateDTAList(absences);
+
+            return absenceResponseList;
+        }
+
+        return new ArrayList<>();
+    }
+
     /***
      * Helper to convert List<Absence> into List<AbsenceDAO>
      *
      * @param absences
      * @return
      */
-    private List<AbsenceDAO> populateDTAList(List<Absence> absences) {
+    private List<AbsenceResponse> populateDTAList(List<Absence> absences) {
 
         // Create new Data Access List
-        List<AbsenceDAO> absenceDAOList = new ArrayList<AbsenceDAO>();
+        List<AbsenceResponse> absenceResponseList = new ArrayList<AbsenceResponse>();
 
         // populate new list
         for(int i = 0; i < absences.size(); i++) {
 
-            AbsenceDAO newAbsenceDAO = new AbsenceDAO();
+            AbsenceResponse newAbsenceResponse = new AbsenceResponse();
 
-            newAbsenceDAO.populate(absences.get(i));
+            newAbsenceResponse.populate(absences.get(i));
 
-            absenceDAOList.add(newAbsenceDAO);
+            absenceResponseList.add(newAbsenceResponse);
         }
 
-        return absenceDAOList;
+        return absenceResponseList;
     }
 }

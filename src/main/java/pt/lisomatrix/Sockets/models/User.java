@@ -4,6 +4,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import pt.lisomatrix.Sockets.requests.models.NewUser;
 
 
 import javax.persistence.*;
@@ -19,12 +20,12 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long userId;
 
-    @Column(unique = true, nullable = false, name = "email")
+    @Column(unique = true, nullable = true, name = "email")
     private String username;
 
     private String password;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = true)
     private String registrationCode;
 
     @Column(nullable = false)
@@ -34,6 +35,8 @@ public class User implements Serializable {
     @JoinColumn(name = "role_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Role role;
+
+    private boolean active;
 
     public User() {
     }
@@ -49,6 +52,14 @@ public class User implements Serializable {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public Role getRole() {

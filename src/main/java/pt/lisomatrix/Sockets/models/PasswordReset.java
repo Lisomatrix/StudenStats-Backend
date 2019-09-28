@@ -9,7 +9,8 @@ public class PasswordReset implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String passwordResetId;
+    @Column(name = "id")
+    private long passwordResetId;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
@@ -44,11 +45,11 @@ public class PasswordReset implements Serializable {
         this.user = user;
     }
 
-    public String getPasswordResetId() {
+    public long getPasswordResetId() {
         return passwordResetId;
     }
 
-    public void setPasswordResetId(String passwordResetId) {
+    public void setPasswordResetId(long passwordResetId) {
         this.passwordResetId = passwordResetId;
     }
 }

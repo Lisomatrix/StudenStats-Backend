@@ -18,4 +18,7 @@ public interface FilesRepository  extends JpaRepository<File, String> {
 
     @Query(value = "select * from files where user_id = :userId", nativeQuery = true)
     Optional<List<File>> findUserFiles(@Param("userId") long userId);
+
+    @Query(value = "select * from files where storage_number = :storageNumber ;", nativeQuery = true)
+    Optional<List<File>> findAllByStorageNumber(@Param("storageNumber") int storageNumber);
 }

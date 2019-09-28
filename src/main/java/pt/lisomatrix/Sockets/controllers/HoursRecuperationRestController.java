@@ -13,8 +13,7 @@ import pt.lisomatrix.Sockets.models.HourRecuperation;
 import pt.lisomatrix.Sockets.repositories.AbsencesRepository;
 import pt.lisomatrix.Sockets.repositories.HoursRecuperationRepository;
 import pt.lisomatrix.Sockets.requests.models.RecuperateAbsences;
-import pt.lisomatrix.Sockets.websocket.models.AbsenceDAO;
-import pt.lisomatrix.Sockets.websocket.models.Event;
+import pt.lisomatrix.Sockets.response.models.AbsenceResponse;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,7 +31,7 @@ public class HoursRecuperationRestController {
     @PostMapping("/recuperation/absence")
     @PreAuthorize("hasRole('ROLE_PROFESSOR')")
     @CrossOrigin
-    public List<AbsenceDAO> recuperateHours(@RequestBody RecuperateAbsences recuperateAbsences) {
+    public List<AbsenceResponse> recuperateHours(@RequestBody RecuperateAbsences recuperateAbsences) {
 
         List<Long> ids = new ArrayList<>();
 
@@ -51,22 +50,22 @@ public class HoursRecuperationRestController {
 
             hoursRecuperationRepository.save(hourRecuperation);
 
-            List<AbsenceDAO> absenceDAOS = new ArrayList<>();
+            List<AbsenceResponse> absenceResponses = new ArrayList<>();
 
             for (int i = 0; i < foundAbsences.size(); i++) {
 
-                AbsenceDAO absenceDAO = new AbsenceDAO();
+                AbsenceResponse absenceResponse = new AbsenceResponse();
                 Absence absence = foundAbsences.get(i);
 
                 absence.setRecuperated(true);
 
-                absenceDAO.populate(absence);
-                absenceDAOS.add(absenceDAO);
+                absenceResponse.populate(absence);
+                absenceResponses.add(absenceResponse);
             }
 
             absencesRepository.saveAll(foundAbsences);
 
-            return absenceDAOS;
+            return absenceResponses;
         }
 
         throw new ResponseStatusException(

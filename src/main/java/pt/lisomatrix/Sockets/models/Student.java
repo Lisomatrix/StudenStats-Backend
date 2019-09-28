@@ -24,8 +24,6 @@ public class Student implements Serializable {
     @Column(nullable = false, name = "name")
     private String name;
 
-    private int age;
-
     private String address;
 
     private Date birthDate;
@@ -33,6 +31,16 @@ public class Student implements Serializable {
     private String birthPlace;
 
     private String mobilePhone;
+
+    private String zipCode;
+
+    public String getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+    }
 
     public Long getStudentId() {
         return studentId;
@@ -56,14 +64,6 @@ public class Student implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
     }
 
     public String getAddress() {

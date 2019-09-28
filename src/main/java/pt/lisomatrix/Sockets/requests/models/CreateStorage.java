@@ -12,6 +12,16 @@ public class CreateStorage {
 
     private String storageIp;
 
+    private long totalSpace;
+
+    public long getTotalSpace() {
+        return totalSpace;
+    }
+
+    public void setTotalSpace(long totalSpace) {
+        this.totalSpace = totalSpace;
+    }
+
     public boolean isMaster() {
         return isMaster;
     }

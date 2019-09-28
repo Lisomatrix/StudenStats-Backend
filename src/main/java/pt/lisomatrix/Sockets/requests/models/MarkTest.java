@@ -15,6 +15,16 @@ public class MarkTest {
 
     private Long disciplineId;
 
+    private Long moduleId;
+
+    public Long getModuleId() {
+        return moduleId;
+    }
+
+    public void setModuleId(Long moduleId) {
+        this.moduleId = moduleId;
+    }
+
     public Date getDate() {
         return date;
     }

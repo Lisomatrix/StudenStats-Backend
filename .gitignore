@@ -36,3 +36,15 @@ src/main/resources/public/\._\.DS_Store
 *.DS_Store
 
 src/main/resources/public/
+
+*.log
+
+pap_server.p12
+
+pap_server.pem
+
+pap_server_backup.jks
+
+pap_server_key.pem
+
+Sockets-0.0.1-SNAPSHOT.jar
